@@ -38,10 +38,13 @@ let Scene = function(gl) {
   this.lightSource = new lightSource();
   this.lightSource.lightPos = new Vec4Array(2);
   this.lightSource.lightPowerDensity = new Vec4Array(2);
+  this.lightSource.mainDir = new Vec4Array(2);
   this.lightSource.lightPos.at(0).set(1, 1, 1, 0);
   this.lightSource.lightPowerDensity.at(0).set(4, 4, 4, 0);
   //this.lightSource.lightPos.at(1).set(-.2, 10, 5, 1);
-  this.lightSource.lightPowerDensity.at(1).set(2, 2, 2, 0);
+  this.lightSource.lightPowerDensity.at(1).set(8, 8, 8, 0);
+  this.lightSource.mainDir.at(0).set(-1, -1, -1, 0);
+  //this.lightSource.mainDir.at(1).set(0, -1, 5, 0);
   this.spotLight;
 
   console.log(this.lightSource.lightPos.at(0));
@@ -74,7 +77,7 @@ let Scene = function(gl) {
   this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.carMat]));
   this.car.position = new Vec3(-.2, 0, -1.5);
   this.car.scale = .03;
-  this.car.acceleration = new Vec2(.02, -.05);
+  this.car.acceleration = new Vec2(.02, -.08);
   this.gameObjects.push(this.car);
 
   //wheels
@@ -117,10 +120,11 @@ let Scene = function(gl) {
   this.treeMat = new Material(gl, this.solidProgram);
   this.treeMat.colorTexture.set(this.treeTexture.glTexture);
   this.trees = [];
-  for (var i=0;i<50;i++) {
+  for (var i=0;i<100;i++) {
     this.tree = new GameObject(new MultiMesh(gl, "./json/tree.json", [this.treeMat]));
     this.tree.position = new Vec3(Math.random() * 50 - 25, -.1, Math.random() * 50 - 25);
-    this.tree.scale = .03;
+    this.tree.orientation = Math.random() * Math.PI * 2;
+    this.tree.scale = .025 + .01 * Math.random();
     this.gameObjects.push(this.tree);
   }
 };
@@ -136,9 +140,6 @@ Scene.prototype.update = function(gl, keysPressed) {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   this.solidProgram.commit();
-
-  //move camera based on hotkeys
-  this.camera.move(dt, keysPressed);
 
   //move Slowpoke
   this.renderObject.position.x = Math.sin(timeAtThisFrame/150.0) * .2 + .6;
@@ -199,7 +200,17 @@ Scene.prototype.update = function(gl, keysPressed) {
   dx = front.times(this.car.speed.x);
   this.car.position.add(dx).add(elevation);
   this.camera.position.add(dx).add(elevation);
-  this.spotLight = this.car.position.plus(new Vec3(0, .5, 0)).plus(this.car.faceDirection.times(30));
+
+  //Tracking shot
+  if (keysPressed.T === true) {
+    this.camera.track(this.car);
+  }
+
+  //move camera based on hotkeys
+  this.camera.move(dt, keysPressed);
+
+  this.spotLight = new Vec4(this.car.position.plus(new Vec3(0, .8, 0)).plus(front.times(1)), 1);
+  this.lightSource.mainDir.at(1).set(new Vec4(front.times(50).plus(new Vec3(0, -1, 0))), 1);
   this.lightSource.lightPos.at(1).set(this.spotLight);
   //drawing the shapes!!!
   // this.renderObject.draw(this.camera, this.lightSource);
@@ -210,9 +221,10 @@ Scene.prototype.update = function(gl, keysPressed) {
     object.draw(theScene.camera, theScene.lightSource);
   });
 
-  this.gameObjects.forEach(function(object) {
-    object.drawShadow(theScene.camera, theScene.lightSource);
-  });
+  // this.gameObjects.forEach(function(object) {
+  //
+  //   object.drawShadow(theScene.camera, theScene.lightSource);
+  // });
 
 //The rest is from the first 2 weeks of practicals!
 

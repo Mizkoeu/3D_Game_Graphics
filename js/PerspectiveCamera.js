@@ -52,6 +52,15 @@ PerspectiveCamera.prototype.updateProjMatrix = function(){
                       mul(this.projMatrix);
 };
 
+PerspectiveCamera.prototype.track = function(object) {
+  let front = object.faceDirection;
+  let focus = object.position.plus(new Vec3(0, .5, 0));
+  this.position = focus.plus(new Vec3(0, .2, 0)).plus(front.times(-50));
+  this.ahead = (focus.minus(this.position)).normalize();
+  this.right.setVectorProduct(this.ahead, new Vec3(0, 1, 0)).normalize();
+  this.up.setVectorProduct(this.right, this.ahead).normalize();
+};
+
 PerspectiveCamera.prototype.move = function(dt, keysPressed) {
   if(this.isDragging){
     this.yaw -= this.mouseDelta.x * 0.002;

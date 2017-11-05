@@ -28,6 +28,7 @@ let Material = function(gl, program) {
 Material.modelViewProjMatrix = new Mat4();
 Material.modelMatrix = new Mat4();
 Material.modelMatrixInverse = new Mat4();
+Material.mainDir = new Vec4Array(2);
 Material.lightPos = new Vec4Array(2);
 Material.lightPowerDensity = new Vec4Array(2);
 
