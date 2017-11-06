@@ -12,16 +12,17 @@ let Scene = function(gl) {
   //shader & programs
   this.vsIdle = new Shader(gl, gl.VERTEX_SHADER, "idle_vs.essl");
   this.fsSolid = new Shader(gl, gl.FRAGMENT_SHADER, "solid_fs.essl");
-  this.fsShadow = new Shader(gl, gl.FRAGMENT_SHADER, "shadow_fs.essl");
+  this.fsShiny = new Shader(gl, gl.FRAGMENT_SHADER, "shiny_fs.essl");
   this.solidProgram = new TextureProgram(gl, this.vsIdle, this.fsSolid);
-  this.shadowProgram = new TextureProgram(gl, this.vsIdle, this.fsShadow);
+  this.shinyProgram = new TextureProgram(gl, this.vsIdle, this.fsShiny);
 
   //geometries
   this.textureGeometry = new TexturedIndexedTrianglesGeometry(gl, "./Slowpoke.json");
   this.quadGeometry = new TexturedQuadGeometry(gl);
 
   //materials
-  this.bodyMaterial = new Material(gl, this.solidProgram);
+  this.shinyMaterial = new Material(gl, this.shinyProgram);
+  this.bodyMaterial = new Material(gl, this.shinyProgram);
   this.eyeMaterial = new Material(gl, this.solidProgram);
   this.landMaterial = new Material(gl, this.solidProgram);
   //texture binding
@@ -40,9 +41,9 @@ let Scene = function(gl) {
   this.lightSource.lightPowerDensity = new Vec4Array(2);
   this.lightSource.mainDir = new Vec4Array(2);
   this.lightSource.lightPos.at(0).set(1, 1, 1, 0);
-  this.lightSource.lightPowerDensity.at(0).set(4, 4, 4, 0);
+  this.lightSource.lightPowerDensity.at(0).set(3, 3, 3, 0);
   //this.lightSource.lightPos.at(1).set(-.2, 10, 5, 1);
-  this.lightSource.lightPowerDensity.at(1).set(8, 8, 8, 0);
+  this.lightSource.lightPowerDensity.at(1).set(5, 5, 5, 0);
   this.lightSource.mainDir.at(0).set(-1, -1, -1, 0);
   //this.lightSource.mainDir.at(1).set(0, -1, 5, 0);
   this.spotLight;
@@ -72,7 +73,7 @@ let Scene = function(gl) {
   this.gameObjects.push(this.renderObject);
 
   this.carTexture = new Texture2D(gl, "./json/chevy/chevy.png");
-  this.carMat = new Material(gl, this.solidProgram);
+  this.carMat = new Material(gl, this.shinyProgram);
   this.carMat.colorTexture.set(this.carTexture.glTexture);
   this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.carMat]));
   this.car.position = new Vec3(-.2, 0, -1.5);
@@ -115,19 +116,54 @@ let Scene = function(gl) {
   this.newPoke.orientation = 3.14;
   this.gameObjects.push(this.newPoke);
 
+  //Ballons
+  this.balloonTexture = new Texture2D(gl, "./json/balloon.png");
+  this.balloonMat = new Material(gl, this.shinyProgram);
+  this.balloonMat.colorTexture.set(this.balloonTexture.glTexture);
+  this.balloons = [];
+  for (var i=0;i<30;i++) {
+    var balloon = new GameObject(new MultiMesh(gl, "./json/balloon.json", [this.balloonMat]));
+    balloon.position = new Vec3(Math.random() * 50 - 25, 2, Math.random() * 50 - 25);
+    balloon.scale = .04 + .01 * Math.random();
+    this.balloons.push(balloon);
+    this.gameObjects.push(balloon);
+  }
+
+  //Thunderbolt
+  // this.createObject(gl, "heli", "./json/heli/heliait.png", "./json/heli/heli1.json");
+  // //this.createObject(gl, "heliRotor", "./json/heli/heli.png", "./json/heli/mainrotor.json");
+  // this.heli.orientation = -Math.PI/2.0;
+  // this.heli.position = new Vec3(0, 1, 0);
+  //this.heliRotor.parent = this.heli;
+
   //Trees
   this.treeTexture = new Texture2D(gl, "./json/tree.png");
-  this.treeMat = new Material(gl, this.solidProgram);
+  this.treeMat = new Material(gl, this.shinyProgram);
   this.treeMat.colorTexture.set(this.treeTexture.glTexture);
   this.trees = [];
   for (var i=0;i<100;i++) {
-    this.tree = new GameObject(new MultiMesh(gl, "./json/tree.json", [this.treeMat]));
-    this.tree.position = new Vec3(Math.random() * 50 - 25, -.1, Math.random() * 50 - 25);
-    this.tree.orientation = Math.random() * Math.PI * 2;
-    this.tree.scale = .025 + .01 * Math.random();
-    this.gameObjects.push(this.tree);
+    var tree = new GameObject(new MultiMesh(gl, "./json/tree.json", [this.treeMat]));
+    tree.position = new Vec3(Math.random() * 50 - 25, -.1, Math.random() * 50 - 25);
+    tree.orientation = Math.random() * Math.PI * 2;
+    tree.scale = .025 + .01 * Math.random();
+    this.gameObjects.push(tree);
   }
 };
+
+Scene.prototype.createObject = function(gl, name, texture, mesh) {
+  var json = JSON.parse(mesh);
+  let numMesh = json.children.length;
+  let texture2D = new Texture2D(gl, texture);
+  var materialArray = [];
+  var material = new Material(gl, this.solidProgram);
+  material.colorTexture.set(texture2D.glTexture);
+  for (var i=0;i<numMesh;i++) {
+    materialArray.push(material);
+  }
+  this[name] = new GameObject(new MultiMesh(gl, mesh, materialArray));
+  this[name].scale = .08;
+  this.gameObjects.push(this[name]);
+}
 
 Scene.prototype.update = function(gl, keysPressed) {
   let timeAtThisFrame = new Date().getTime();
@@ -144,6 +180,13 @@ Scene.prototype.update = function(gl, keysPressed) {
   //move Slowpoke
   this.renderObject.position.x = Math.sin(timeAtThisFrame/150.0) * .2 + .6;
   this.renderObject.position.z = Math.cos(timeAtThisFrame/150.0) * .2 - 1.2;
+  // this.heli.orientation += .05;
+  // this.heli.position.x = Math.sin(timeAtThisFrame/450.0) * 5 + .6;
+  // this.heli.position.z = Math.cos(timeAtThisFrame/450.0) * 5 - 1.2;
+
+  for (var i=0;i<this.balloons.length;i++) {
+    this.balloons[i].position.y = Math.cos(timeAtThisFrame/300.0 + i) * .2 + 1.2;
+  }
 
   //objects in the scene move according to hotkeys
   let theScene = this;
@@ -219,6 +262,7 @@ Scene.prototype.update = function(gl, keysPressed) {
   // this.land.draw(this.camera, this.lightSource);
   this.gameObjects.forEach(function(object) {
     object.draw(theScene.camera, theScene.lightSource);
+    //object.drawShadow(theScene.camera, theScene.lightSource, theScene.shinyMaterial);
   });
 
   // this.gameObjects.forEach(function(object) {

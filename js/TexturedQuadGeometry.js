@@ -6,10 +6,11 @@ let TexturedQuadGeometry = function(gl) {
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
   gl.bufferData(gl.ARRAY_BUFFER,
     new Float32Array([
-        -10, 0, -10,
-        -10, 0,  10,
-         10, 0, -10,
-         10, 0,  10,
+          0,  0, 0, 1,
+          -10, 0, 0, 0,
+          0, 0,  10, 0,
+          10, 0,  0, 0,
+          0, 0, -10, 0,
     ]),
     gl.STATIC_DRAW);
 
@@ -22,6 +23,7 @@ let TexturedQuadGeometry = function(gl) {
          0, 1, 0,
          0, 1, 0,
          0, 1, 0,
+         0, 1, 0
     ]),
     gl.STATIC_DRAW);
 
@@ -30,10 +32,11 @@ let TexturedQuadGeometry = function(gl) {
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexTexCoordBuffer);
   gl.bufferData(gl.ARRAY_BUFFER,
     new Float32Array([
-         0, 20,
          0, 0,
-         20, 20,
-         20, 0,
+         -10, 0,
+         0, 10,
+         10,  0,
+         0, -10
     ]),
     gl.STATIC_DRAW);
 
@@ -43,11 +46,11 @@ let TexturedQuadGeometry = function(gl) {
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
     new Uint16Array([
       0, 1, 2,
-      1, 2, 3,
+      0, 2, 3,
+      0, 3, 4,
+      0, 4, 1
     ]),
     gl.STATIC_DRAW);
-
-
 };
 
 TexturedQuadGeometry.prototype.draw = function() {
@@ -56,7 +59,7 @@ TexturedQuadGeometry.prototype.draw = function() {
   gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
   gl.enableVertexAttribArray(0);
   gl.vertexAttribPointer(0,
-    3, gl.FLOAT, //< three pieces of float
+    4, gl.FLOAT, //< three pieces of float
     false, //< do not normalize (make unit length)
     0, //< tightly packed
     0 //< data starts at array start
@@ -82,5 +85,5 @@ TexturedQuadGeometry.prototype.draw = function() {
   );
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-  gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
 };

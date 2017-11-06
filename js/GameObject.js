@@ -43,11 +43,13 @@ GameObject.prototype.draw = function(camera, lightSource){
   Material.lightPos.set(lightSource.lightPos);
   Material.lightPowerDensity.set(lightSource.lightPowerDensity);
   Material.mainDir.set(lightSource.mainDir);
+  Material.cameraPos.set(camera.position);
   this.mesh.draw();
 };
 
-GameObject.prototype.drawShadow = function(camera, lightSource) {
-  this.scale = new Vec3(1, 0, 1);
-  this.color = new Vec4(0, 0, 0, 1);
-  this.mesh.drawShadow();
+GameObject.prototype.drawShadow = function(camera, lightSource, shadowMaterial) {
+  //this.scale = new Vec3(.03, 0, .03);
+  //this.color = new Vec4(0, 0, 0, 1);
+  this.mesh.drawShadow(shadowMaterial);
+  //this.scale = new Vec3(.03, .03, .03);
 };

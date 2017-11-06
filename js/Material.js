@@ -31,6 +31,7 @@ Material.modelMatrixInverse = new Mat4();
 Material.mainDir = new Vec4Array(2);
 Material.lightPos = new Vec4Array(2);
 Material.lightPowerDensity = new Vec4Array(2);
+Material.cameraPos = new Vec3();
 
 
 Material.prototype.commit = function() {
