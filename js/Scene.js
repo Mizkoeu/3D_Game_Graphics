@@ -13,14 +13,17 @@ let Scene = function(gl) {
   this.vsIdle = new Shader(gl, gl.VERTEX_SHADER, "idle_vs.essl");
   this.fsSolid = new Shader(gl, gl.FRAGMENT_SHADER, "solid_fs.essl");
   this.fsShiny = new Shader(gl, gl.FRAGMENT_SHADER, "shiny_fs.essl");
+  this.fsShadow = new Shader(gl, gl.FRAGMENT_SHADER, "shadow_fs.essl")
   this.solidProgram = new TextureProgram(gl, this.vsIdle, this.fsSolid);
   this.shinyProgram = new TextureProgram(gl, this.vsIdle, this.fsShiny);
+  this.shadowProgram = new TextureProgram(gl, this.vsIdle, this.fsShadow);
 
   //geometries
   this.textureGeometry = new TexturedIndexedTrianglesGeometry(gl, "./Slowpoke.json");
   this.quadGeometry = new TexturedQuadGeometry(gl);
 
   //materials
+  this.shadowMaterial = new Material(gl, this.shadowProgram);
   this.shinyMaterial = new Material(gl, this.shinyProgram);
   this.bodyMaterial = new Material(gl, this.shinyProgram);
   this.eyeMaterial = new Material(gl, this.solidProgram);
@@ -28,7 +31,9 @@ let Scene = function(gl) {
   //texture binding
   this.texture = new Texture2D(gl, "./Slowpoke/YadonDh.png");
   this.texture2 = new Texture2D(gl, "./Slowpoke/YadonEyeDh.png");
+  //this.shadowTexture = new Texture2D(gl, "./shadow.png");
   this.landTexture = new Texture2D(gl, "./grass.png");
+  //this.shinyMaterial.colorTexture.set(this.shadowTexture.glTexture);
   this.bodyMaterial.colorTexture.set(this.texture.glTexture);
   this.eyeMaterial.colorTexture.set(this.texture2.glTexture);
   this.landMaterial.colorTexture.set(this.landTexture.glTexture);
@@ -57,8 +62,9 @@ let Scene = function(gl) {
   this.gameObjects = [];
   //Create the land Scene
   this.land = new GameObject(new Mesh(this.quadGeometry, this.landMaterial));
-  this.land.position = new Vec3(0.8, -.2, -1.5);
+  this.land.position = new Vec3(0.8, -.18, -1.5);
   this.land.scale = 10;
+  this.land.isGround = true;
   this.gameObjects.push(this.land);
 
   //Create object array
@@ -67,7 +73,7 @@ let Scene = function(gl) {
   this.materials.push(this.bodyMaterial);
   this.materials.push(this.eyeMaterial);
   this.renderObject = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", this.materials));
-  this.renderObject.position = new Vec3(0.8, -.2, -1.5);
+  this.renderObject.position = new Vec3(0.8, -.18, -1.5);
   //this.renderObject.orientation = .2;
   this.renderObject.scale = .06;
   this.gameObjects.push(this.renderObject);
@@ -76,7 +82,7 @@ let Scene = function(gl) {
   this.carMat = new Material(gl, this.shinyProgram);
   this.carMat.colorTexture.set(this.carTexture.glTexture);
   this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.carMat]));
-  this.car.position = new Vec3(-.2, 0, -1.5);
+  this.car.position = new Vec3(-.2, .1, -1.5);
   this.car.scale = .03;
   this.car.acceleration = new Vec2(.02, -.08);
   this.gameObjects.push(this.car);
@@ -245,7 +251,7 @@ Scene.prototype.update = function(gl, keysPressed) {
   this.camera.position.add(dx).add(elevation);
 
   //Tracking shot
-  if (keysPressed.T === true) {
+  if (keysPressed.F === true) {
     this.camera.track(this.car);
   }
 
@@ -262,8 +268,10 @@ Scene.prototype.update = function(gl, keysPressed) {
   // this.land.draw(this.camera, this.lightSource);
   this.gameObjects.forEach(function(object) {
     object.draw(theScene.camera, theScene.lightSource);
-    //object.drawShadow(theScene.camera, theScene.lightSource, theScene.shinyMaterial);
+    object.drawShadow(theScene.camera, theScene.lightSource, theScene.shadowMaterial);
   });
+  // this.car.draw(this.camera, this.lightSource);
+  // this.car.drawShadow(this.camera, this.lightSource, this.shadowMaterial);
 
   // this.gameObjects.forEach(function(object) {
   //

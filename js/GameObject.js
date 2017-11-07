@@ -2,6 +2,7 @@
 let GameObject = function(mesh) {
   this.mesh = mesh;
 
+  this.isGround = false;
   this.orientation = 0;
   this.rotation = 0;
   this.position = new Vec3(0, 0, 0);
@@ -48,8 +49,15 @@ GameObject.prototype.draw = function(camera, lightSource){
 };
 
 GameObject.prototype.drawShadow = function(camera, lightSource, shadowMaterial) {
-  //this.scale = new Vec3(.03, 0, .03);
-  //this.color = new Vec4(0, 0, 0, 1);
-  this.mesh.drawShadow(shadowMaterial);
-  //this.scale = new Vec3(.03, .03, .03);
+  if (this.isGround === false) {
+    this.updateModelMatrix();
+    Material.objectPosition.set(this.position);
+    //this.modelMatrix.scale(new Vec3(1, 0, 1));
+    let light = lightSource.lightPos.at(0);
+    Material.modelMatrix.scale(new Vec3(1, 0, 1)).
+                         translate(new Vec3(0, -.17, 0));//.translate(new Vec3(light.x *-.1, 0, light.z*-.1));
+    Material.modelMatrixInverse.set(Material.modelMatrix).invert();
+    Material.modelViewProjMatrix.set(Material.modelMatrix).mul(camera.viewProjMatrix);
+    this.mesh.drawShadow(shadowMaterial);
+  }
 };

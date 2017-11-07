@@ -18,7 +18,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 			float cosTheta = dot(normalize(lightDir), normalize(worldNormal));
 			vec4 powerDensity = vec4(0, 0, 0, 0);
 			if (mainDir[i].w == 1.0) {
-				powerDensity = lightPowerDensity[i] * pow(max(dot(normalize(mainDir[i].xyz), normalize((-1.0) * lightDir)), 0.0), 8.0);
+				powerDensity = lightPowerDensity[i] * pow(max(dot(normalize(mainDir[i].xyz), normalize((-1.0) * lightDir)), 0.0), 12.0);
 			} else {
 				powerDensity = lightPowerDensity[i];
 			}
