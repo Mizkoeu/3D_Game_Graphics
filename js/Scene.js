@@ -13,10 +13,12 @@ let Scene = function(gl) {
   this.vsIdle = new Shader(gl, gl.VERTEX_SHADER, "idle_vs.essl");
   this.fsSolid = new Shader(gl, gl.FRAGMENT_SHADER, "solid_fs.essl");
   this.fsShiny = new Shader(gl, gl.FRAGMENT_SHADER, "shiny_fs.essl");
-  this.fsShadow = new Shader(gl, gl.FRAGMENT_SHADER, "shadow_fs.essl")
+  this.fsShadow = new Shader(gl, gl.FRAGMENT_SHADER, "shadow_fs.essl");
+  this.fsWood = new Shader(gl, gl.FRAGMENT_SHADER, "wood_fs.essl");
   this.solidProgram = new TextureProgram(gl, this.vsIdle, this.fsSolid);
   this.shinyProgram = new TextureProgram(gl, this.vsIdle, this.fsShiny);
   this.shadowProgram = new TextureProgram(gl, this.vsIdle, this.fsShadow);
+  this.woodProgram = new TextureProgram(gl, this.vsIdle, this.fsWood);
 
   //geometries
   this.textureGeometry = new TexturedIndexedTrianglesGeometry(gl, "./Slowpoke.json");
@@ -25,7 +27,7 @@ let Scene = function(gl) {
   //materials
   this.shadowMaterial = new Material(gl, this.shadowProgram);
   this.shinyMaterial = new Material(gl, this.shinyProgram);
-  this.bodyMaterial = new Material(gl, this.shinyProgram);
+  this.bodyMaterial = new Material(gl, this.woodProgram);
   this.eyeMaterial = new Material(gl, this.solidProgram);
   this.landMaterial = new Material(gl, this.solidProgram);
   //texture binding
@@ -177,7 +179,7 @@ Scene.prototype.update = function(gl, keysPressed) {
   this.timeAtLastFrame = timeAtThisFrame;
 
   // clear the screen
-  gl.clearColor(0.1, 0.1, 0.4, .5);
+  gl.clearColor(0.0, 0.0, 0.0, 0.0);
   gl.clearDepth(1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 

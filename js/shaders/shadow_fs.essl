@@ -12,7 +12,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 
 
 	void main(void) {
-    float opacity = 1.0/(objectPosition.y +1.0);
+    float opacity = pow((1.0/(objectPosition.y + 1.0)), 0.1);
 		gl_FragColor = vec4(0, 0, 0, opacity);
 	}
 `;

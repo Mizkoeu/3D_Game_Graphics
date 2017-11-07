@@ -72,7 +72,7 @@ App.prototype.update = function() {
 	if (pendingResourceNames.length === 0) {
 		// animate and draw scene
 		this.scene.update(this.gl, this.keysPressed);
-		this.overlay.innerHTML = "Ça c'est un Pokémon!";
+		this.overlay.innerHTML = "";
 		// if (this.startPos !== null) {
 		// 	this.scene.drag(this.startPos, this.mousePos);
 		// 	if (this.endPos !== null) {

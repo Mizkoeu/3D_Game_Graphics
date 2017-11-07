@@ -1,0 +1,51 @@
+Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
+	precision highp float;
+	varying vec2 texCoord;
+	varying vec4 worldPos;
+	varying vec3 worldNormal;
+	uniform sampler2D colorTexture;
+	uniform vec4 lightPos[2]; // xyz is the direction, w is 0
+	uniform vec4 mainDir[2];
+	uniform vec4 lightPowerDensity[2]; // w ignored
+	uniform vec3 cameraPos;
+  uniform vec3 objectPosition;
+
+  float snoise(vec3 r) {
+    vec3 s = vec3(7502, 22777, 4767);
+    float w = 0.0;
+    for(int i=0; i<16; i++) {
+      w += sin( dot(s - vec3(32768, 32768, 32768), r * 40.0) / 65536.0);
+      s = mod(s, 32768.0) * 2.0 + floor(s / 32768.0);
+    }
+    return w / 32.0 + 0.5;
+  }
+
+  vec3 getColor(vec3 position, float scale, float turbulence, float period, float sharpness) {
+    float w = position.x * period + pow(snoise(position * scale), sharpness)*turbulence;
+    w -= float(floor(w));  // take fractional part
+    return vec3(1, 0.3, 0) * w + vec3(0.35, 0.1, 0.05) * (1.0-w);
+  }
+
+	void main(void) {
+    float scale = 2.0;
+    float turbulence = 600.0;
+    float period = 5.0;
+    float sharpness = 10.0;
+
+    vec4 tex = vec4(getColor(worldPos.xyz, scale, turbulence, period, sharpness), 1);
+
+		gl_FragColor = vec4(0, 0, 0, 0);
+		for (int i=0;i<2;i++) {
+			vec3 lightDir = lightPos[i].xyz - lightPos[i].w * worldPos.xyz;
+			float cosTheta = dot(normalize(lightDir), normalize(worldNormal));
+			vec4 powerDensity = vec4(0, 0, 0, 0);
+			if (mainDir[i].w == 1.0) {
+				powerDensity = lightPowerDensity[i] * pow(max(dot(normalize(mainDir[i].xyz), normalize((-1.0) * lightDir)), 0.0), 12.0);
+			} else {
+				powerDensity = lightPowerDensity[i];
+			}
+			gl_FragColor += vec4 ((powerDensity/(pow(length(lightDir), 2.0)) *
+														tex).rgb * max(cosTheta, 0.0), 1);
+		}
+	}
+`;
