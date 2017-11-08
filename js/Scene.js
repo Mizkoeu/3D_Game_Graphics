@@ -117,13 +117,16 @@ let Scene = function(gl) {
   this.gameObjects.push(this.rotor);
 
   this.creatures = [];
-  for (var i=0;i<10;i++) {
+  for (var i=0;i<30;i++) {
     if (Math.random() < .5) {
       var newPoke = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", [this.woodMaterial, this.eyeMaterial]));
     } else { var newPoke = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", [this.bodyMaterial, this.eyeMaterial]));}
-    newPoke.position = new Vec3(Math.random() * 20 - 10, -.17, Math.random() * 20 - 10);
+    newPoke.position = new Vec3(Math.random() * 50 - 25, -.17, Math.random() * 50 - 25);
     newPoke.scale = .06 + .02 * Math.random();
     newPoke.orientation = Math.random() * Math.PI * 2;
+    var rotateMat = (new Mat4()).rotate(newPoke.orientation, new Vec3(0, 1, 0));
+    newPoke.faceDirection.set((new Vec4(newPoke.faceDirection, 0)).mul(rotateMat));
+    this.creatures.push(newPoke);
     this.gameObjects.push(newPoke);
   }
 
@@ -135,7 +138,7 @@ let Scene = function(gl) {
   this.balloons = [];
   for (var i=0;i<30;i++) {
     var balloon = new GameObject(new MultiMesh(gl, "./json/balloon.json", [this.balloonMat]));
-    balloon.position = new Vec3(Math.random() * 50 - 25, 3, Math.random() * 50 - 25);
+    balloon.position = new Vec3(Math.random() * 70 - 35, 3, Math.random() * 70 - 35);
     balloon.scale = .04 + .01 * Math.random();
     this.balloons.push(balloon);
     this.gameObjects.push(balloon);
@@ -155,7 +158,7 @@ let Scene = function(gl) {
   this.trees = [];
   for (var i=0;i<100;i++) {
     var tree = new GameObject(new MultiMesh(gl, "./json/tree.json", [this.treeMat]));
-    tree.position = new Vec3(Math.random() * 50 - 25, -.1, Math.random() * 50 - 25);
+    tree.position = new Vec3(Math.random() * 80 - 40, -.1, Math.random() * 80 - 40);
     tree.orientation = Math.random() * Math.PI * 2;
     tree.scale = .025 + .01 * Math.random();
     this.gameObjects.push(tree);
@@ -191,9 +194,24 @@ Scene.prototype.update = function(gl, keysPressed) {
 
   //move Slowpoke
   var rotateMat = (new Mat4()).rotate(.1, new Vec3(0, 1, 0));//.rotate(.1, new Vec3(1, 0, 0));
+  var rotateBack = (new Mat4()).rotate(-.1, new Vec3(0, 1, 0));
   this.renderObject.faceDirection.set((new Vec4(this.renderObject.faceDirection, 0)).mul(rotateMat));
   this.renderObject.position.add(this.renderObject.faceDirection.times(1.0));
   this.renderObject.orientation += .1;
+
+  for (var i=0; i<10; i++) {
+    var o = this.creatures[i];
+    if (i%2 === 0) {
+      o.faceDirection.set((new Vec4(o.faceDirection, 0)).mul(rotateMat));
+      o.orientation += .1;
+      o.position.add(o.faceDirection.times(3.2));
+    } else {
+      o.faceDirection.set((new Vec4(o.faceDirection, 0)).mul(rotateBack));
+      o.orientation -= .1;
+      o.position.add(o.faceDirection.times(2.2));
+    }
+
+  }
   //this.renderObject.pitch -= .1;
   //console.log(this.renderObject.faceDirection);
   //this.renderObject.tilt += .1;
@@ -297,7 +315,7 @@ Scene.prototype.update = function(gl, keysPressed) {
 
   //Tracking shot
   if (keysPressed.T === true) {
-    let t = timeAtThisFrame/1000.0;
+    // let t = timeAtThisFrame/1000.0;
     this.camera.path(Math.PI/100.0);
   }
 
