@@ -6,6 +6,8 @@ var PerspectiveCamera = function()
   this.right = new Vec3(1.0, 0.0, 0.0);
   this.up = new Vec3(0.0, 1.0, 0.0);
 
+  this.rotation = 0.0;
+
   this.yaw = 0.0;
   this.pitch = 0.0;
   this.fov = 1.0;
@@ -60,6 +62,34 @@ PerspectiveCamera.prototype.track = function(object) {
   this.right.setVectorProduct(this.ahead, new Vec3(0, 1, 0)).normalize();
   this.up.setVectorProduct(this.right, this.ahead).normalize();
 };
+
+PerspectiveCamera.prototype.path = function(t) {
+  if (this.rotation < Math.PI) {
+    this.rotation += t;
+    var rotateMat = (new Mat4()).rotate(t, new Vec3(0, 1, 0));
+    var dummy = (new Vec4(this.ahead, 0)).mul(rotateMat);
+    dummy.y = 0.0;
+    this.ahead.set(dummy);
+    this.right.setVectorProduct(this.ahead, new Vec3(0, 1, 0)).normalize();
+    this.up.setVectorProduct(this.right, this.ahead).normalize();
+    this.position.add(this.ahead.times(.2));
+  } else if (this.rotation === Math.PI) {
+    this.rotation += t;
+    this.position.add(this.ahead.times(.2));
+  } else if (this.rotation < Math.PI * 2) {
+    this.rotation += t;
+    var rotateMat = (new Mat4()).rotate(-t, new Vec3(0, 1, 0));
+    var dummy = (new Vec4(this.ahead, 0)).mul(rotateMat);
+    dummy.y = 0.0;
+    this.ahead.set(dummy);
+    this.right.setVectorProduct(this.ahead, new Vec3(0, 1, 0)).normalize();
+    this.up.setVectorProduct(this.right, this.ahead).normalize();
+    this.position.add(this.ahead.times(.2));
+  } else {
+    this.rotation = 0.0;
+  }
+
+}
 
 PerspectiveCamera.prototype.move = function(dt, keysPressed) {
   if(this.isDragging){

@@ -3,7 +3,7 @@ let Scene = function(gl) {
   gl.enable(gl.BLEND);
   gl.enable(gl.DEPTH_TEST);
   gl.blendFunc(
-  gl.SRC_ALPHA,
+  gl.ONE,
   gl.ONE_MINUS_SRC_ALPHA);
 
   //time
@@ -27,7 +27,8 @@ let Scene = function(gl) {
   //materials
   this.shadowMaterial = new Material(gl, this.shadowProgram);
   this.shinyMaterial = new Material(gl, this.shinyProgram);
-  this.bodyMaterial = new Material(gl, this.woodProgram);
+  this.woodMaterial = new Material(gl, this.woodProgram);
+  this.bodyMaterial = new Material(gl, this.solidProgram);
   this.eyeMaterial = new Material(gl, this.solidProgram);
   this.landMaterial = new Material(gl, this.solidProgram);
   //texture binding
@@ -71,10 +72,7 @@ let Scene = function(gl) {
 
   //Create object array
   this.mesh = new Mesh(this.textureGeometry, this.material);
-  this.materials = [];
-  this.materials.push(this.bodyMaterial);
-  this.materials.push(this.eyeMaterial);
-  this.renderObject = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", this.materials));
+  this.renderObject = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", [this.bodyMaterial, this.eyeMaterial]));
   this.renderObject.position = new Vec3(0.8, -.18, -1.5);
   //this.renderObject.orientation = .2;
   this.renderObject.scale = .06;
@@ -118,11 +116,17 @@ let Scene = function(gl) {
   this.rotor.parent = this.car;
   this.gameObjects.push(this.rotor);
 
-  this.newPoke = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", this.materials));
-  this.newPoke.position = new Vec3(-1.2, .2, -1.2);
-  this.newPoke.scale = 0.03;
-  this.newPoke.orientation = 3.14;
-  this.gameObjects.push(this.newPoke);
+  this.creatures = [];
+  for (var i=0;i<10;i++) {
+    if (Math.random() < .5) {
+      var newPoke = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", [this.woodMaterial, this.eyeMaterial]));
+    } else { var newPoke = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", [this.bodyMaterial, this.eyeMaterial]));}
+    newPoke.position = new Vec3(Math.random() * 20 - 10, -.17, Math.random() * 20 - 10);
+    newPoke.scale = .06 + .02 * Math.random();
+    newPoke.orientation = Math.random() * Math.PI * 2;
+    this.gameObjects.push(newPoke);
+  }
+
 
   //Ballons
   this.balloonTexture = new Texture2D(gl, "./json/balloon.png");
@@ -131,7 +135,7 @@ let Scene = function(gl) {
   this.balloons = [];
   for (var i=0;i<30;i++) {
     var balloon = new GameObject(new MultiMesh(gl, "./json/balloon.json", [this.balloonMat]));
-    balloon.position = new Vec3(Math.random() * 50 - 25, 2, Math.random() * 50 - 25);
+    balloon.position = new Vec3(Math.random() * 50 - 25, 3, Math.random() * 50 - 25);
     balloon.scale = .04 + .01 * Math.random();
     this.balloons.push(balloon);
     this.gameObjects.push(balloon);
@@ -186,8 +190,20 @@ Scene.prototype.update = function(gl, keysPressed) {
   this.solidProgram.commit();
 
   //move Slowpoke
-  this.renderObject.position.x = Math.sin(timeAtThisFrame/150.0) * .2 + .6;
-  this.renderObject.position.z = Math.cos(timeAtThisFrame/150.0) * .2 - 1.2;
+  var rotateMat = (new Mat4()).rotate(.1, new Vec3(0, 1, 0));//.rotate(.1, new Vec3(1, 0, 0));
+  this.renderObject.faceDirection.set((new Vec4(this.renderObject.faceDirection, 0)).mul(rotateMat));
+  this.renderObject.position.add(this.renderObject.faceDirection.times(1.0));
+  this.renderObject.orientation += .1;
+  //this.renderObject.pitch -= .1;
+  //console.log(this.renderObject.faceDirection);
+  //this.renderObject.tilt += .1;
+  // this.renderObject.position.x = Math.sin(timeAtThisFrame/350.0) * .8 + .6;
+  // this.renderObject.tilt = Math.cos(timeAtThisFrame/350.0) * .8;
+  // //this.renderObject.position.y = Math.cos(timeAtThisFrame/250.0) * 1.2 + 1.33;
+  // //this.renderObject.pitch = - Math.sin(timeAtThisFrame/250.0) * 1.2;
+  // this.renderObject.position.z = Math.cos(timeAtThisFrame/450.0) * 1.8 - 1.2;
+  // this.renderObject.orientation = - Math.sin(timeAtThisFrame/250.0) * 1.2;
+
   // this.heli.orientation += .05;
   // this.heli.position.x = Math.sin(timeAtThisFrame/450.0) * 5 + .6;
   // this.heli.position.z = Math.cos(timeAtThisFrame/450.0) * 5 - 1.2;
@@ -206,8 +222,15 @@ Scene.prototype.update = function(gl, keysPressed) {
   if (keysPressed.SPACE === true) {
     this.rotor.orientation += 15 * dt;
     this.car.speed.y = 1.8
+    this.car.pitch -= .01;
+    if (this.car.pitch <= -.12) {
+      this.car.pitch = -.12;
+    }
     elevation = new Vec3(0, this.car.speed.y * dt, 0);
   } else {
+    if (this.car.pitch < 0.0) {
+      this.car.pitch +=.02;
+    } else {this.car.pitch = 0.0;}
     if (this.car.position.y <= 0) {
       this.car.speed.y = 0;
       this.car.position.y = 0;
@@ -239,22 +262,43 @@ Scene.prototype.update = function(gl, keysPressed) {
   }
   if (keysPressed.LEFT === true) {
     this.car.orientation += .05;
+    this.car.tilt -= .01;
+    if (this.car.tilt <= -.1) {
+      this.car.tilt = -.1;
+    }
     var rotateMat = (new Mat4()).rotate(.05, new Vec3(0, 1, 0));
     this.car.faceDirection.set((new Vec4(front, 0)).mul(rotateMat));
     console.log(this.car.faceDirection);
-  }
-  if (keysPressed.RIGHT === true) {
+  } else if (keysPressed.RIGHT === true) {
     this.car.orientation -= .05;
+    this.car.tilt += .01;
+    if (this.car.tilt >= .1) {
+      this.car.tilt = .1;
+    }
     var rotateMat = (new Mat4()).rotate(-.05, new Vec3(0, 1, 0));
     this.car.faceDirection.set((new Vec4(front, 0)).mul(rotateMat));
+  } else {
+    if (this.car.tilt <= -.01) {
+      this.car.tilt += .01;
+    } else if (this.car.tilt >= .01) {
+      this.car.tilt -= .01;
+    } else {
+      this.car.tilt = 0.0;
+    }
   }
   dx = front.times(this.car.speed.x);
   this.car.position.add(dx).add(elevation);
   this.camera.position.add(dx).add(elevation);
 
-  //Tracking shot
+  //Focus shot
   if (keysPressed.F === true) {
     this.camera.track(this.car);
+  }
+
+  //Tracking shot
+  if (keysPressed.T === true) {
+    let t = timeAtThisFrame/1000.0;
+    this.camera.path(Math.PI/100.0);
   }
 
   //move camera based on hotkeys
