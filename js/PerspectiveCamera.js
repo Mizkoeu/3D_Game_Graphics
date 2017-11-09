@@ -23,6 +23,7 @@ var PerspectiveCamera = function()
   this.viewMatrix = new Mat4();
   this.projMatrix = new Mat4();
   this.viewProjMatrix = new Mat4();
+  this.rayDirMatrix = new Mat4();
   this.updateViewMatrix();
   this.updateProjMatrix();
 };
@@ -37,7 +38,7 @@ PerspectiveCamera.prototype.updateViewMatrix = function(){
     0  , 0  , 0   , 1).translate(this.position).invert();
 
   this.viewProjMatrix.set(this.viewMatrix).mul(this.projMatrix);
-
+  this.rayDirMatrix.set().translate(this.position).mul(this.viewMatrix).mul(this.projMatrix).invert();
 };
 
 PerspectiveCamera.prototype.updateProjMatrix = function(){

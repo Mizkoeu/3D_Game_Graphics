@@ -73,23 +73,6 @@ App.prototype.update = function() {
 		// animate and draw scene
 		this.scene.update(this.gl, this.keysPressed);
 		this.overlay.innerHTML = "";
-		// if (this.startPos !== null) {
-		// 	this.scene.drag(this.startPos, this.mousePos);
-		// 	if (this.endPos !== null) {
-		// 		this.scene.swap(this.startPos, this.endPos);
-		// 		//this.startPos = null;
-		// 		this.endPos = null;
-		// 	}
-		// }
-
-		// if (this.scene.dramaticExit() === false) {
-		// 	if (this.scene.skyFall() === false) {
-		// 		if (this.scene.bomb(this.keysPressed, this.mousePos, this.startPos) === false) {
-		// 		this.scene.checkLine();
-		// 		}
-		// 	}
-		// }
-
 	} else {
 		this.overlay.innerHTML = "Loading: " + pendingResourceNames;
 	}

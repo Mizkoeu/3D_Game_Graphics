@@ -11,26 +11,38 @@ let Scene = function(gl) {
 
   //shader & programs
   this.vsIdle = new Shader(gl, gl.VERTEX_SHADER, "idle_vs.essl");
+  this.vsSky = new Shader(gl, gl.VERTEX_SHADER, "sky_vs.essl");
+
   this.fsSolid = new Shader(gl, gl.FRAGMENT_SHADER, "solid_fs.essl");
   this.fsShiny = new Shader(gl, gl.FRAGMENT_SHADER, "shiny_fs.essl");
   this.fsShadow = new Shader(gl, gl.FRAGMENT_SHADER, "shadow_fs.essl");
   this.fsWood = new Shader(gl, gl.FRAGMENT_SHADER, "wood_fs.essl");
+  this.fsMirror = new Shader(gl, gl.FRAGMENT_SHADER, "mirror_fs.essl");
+  this.fsSky = new Shader(gl, gl.FRAGMENT_SHADER, "sky_fs.essl");
+
   this.solidProgram = new TextureProgram(gl, this.vsIdle, this.fsSolid);
   this.shinyProgram = new TextureProgram(gl, this.vsIdle, this.fsShiny);
   this.shadowProgram = new TextureProgram(gl, this.vsIdle, this.fsShadow);
   this.woodProgram = new TextureProgram(gl, this.vsIdle, this.fsWood);
+  this.mirrorProgram = new TextureProgram(gl, this.vsIdle, this.fsMirror);
+  this.skyProgram = new TextureProgram(gl, this.vsSky, this.fsSky);
 
   //geometries
   this.textureGeometry = new TexturedIndexedTrianglesGeometry(gl, "./Slowpoke.json");
   this.quadGeometry = new TexturedQuadGeometry(gl);
 
   //materials
+  this.mirrorMaterial = new Material(gl, this.mirrorProgram);
+  this.mirrorTexture = new Texture2D(gl, "./probe.png");
+  this.skyTexture = new Texture2D(gl, "./sky.jpg");
+  this.mirrorMaterial.probeTexture.set(this.mirrorTexture.glTexture);
   this.shadowMaterial = new Material(gl, this.shadowProgram);
   this.shinyMaterial = new Material(gl, this.shinyProgram);
   this.woodMaterial = new Material(gl, this.woodProgram);
   this.bodyMaterial = new Material(gl, this.solidProgram);
   this.eyeMaterial = new Material(gl, this.solidProgram);
   this.landMaterial = new Material(gl, this.solidProgram);
+  this.skyMaterial = new Material(gl, this.skyProgram);
   //texture binding
   this.texture = new Texture2D(gl, "./Slowpoke/YadonDh.png");
   this.texture2 = new Texture2D(gl, "./Slowpoke/YadonEyeDh.png");
@@ -40,6 +52,7 @@ let Scene = function(gl) {
   this.bodyMaterial.colorTexture.set(this.texture.glTexture);
   this.eyeMaterial.colorTexture.set(this.texture2.glTexture);
   this.landMaterial.colorTexture.set(this.landTexture.glTexture);
+  this.skyMaterial.probeTexture.set(this.skyTexture.glTexture);
   //Create a camera
   this.camera = new PerspectiveCamera();
 
@@ -63,6 +76,12 @@ let Scene = function(gl) {
   //this.bodyMaterial.lightPos.set(this.lightSource);
 
   this.gameObjects = [];
+  //Create Skydome
+  this.sky = new GameObject(new Mesh(this.quadGeometry, this.skyMaterial));
+  this.sky.pitch = Math.PI/2.0;
+  //this.sky.position.z = 40.0;
+  this.gameObjects.push(this.sky);
+
   //Create the land Scene
   this.land = new GameObject(new Mesh(this.quadGeometry, this.landMaterial));
   this.land.position = new Vec3(0.8, -.18, -1.5);
@@ -72,7 +91,7 @@ let Scene = function(gl) {
 
   //Create object array
   this.mesh = new Mesh(this.textureGeometry, this.material);
-  this.renderObject = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", [this.bodyMaterial, this.eyeMaterial]));
+  this.renderObject = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", [this.mirrorMaterial, this.eyeMaterial]));
   this.renderObject.position = new Vec3(0.8, -.18, -1.5);
   //this.renderObject.orientation = .2;
   this.renderObject.scale = .06;
@@ -81,7 +100,7 @@ let Scene = function(gl) {
   this.carTexture = new Texture2D(gl, "./json/chevy/chevy.png");
   this.carMat = new Material(gl, this.shinyProgram);
   this.carMat.colorTexture.set(this.carTexture.glTexture);
-  this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.carMat]));
+  this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.mirrorMaterial]));
   this.car.position = new Vec3(-.2, .1, -1.5);
   this.car.scale = .03;
   this.car.acceleration = new Vec2(.02, -.08);
@@ -191,6 +210,7 @@ Scene.prototype.update = function(gl, keysPressed) {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   this.solidProgram.commit();
+  Material.rayDirMatrix.set(this.camera.rayDirMatrix);
 
   //move Slowpoke
   var rotateMat = (new Mat4()).rotate(.1, new Vec3(0, 1, 0));//.rotate(.1, new Vec3(1, 0, 0));

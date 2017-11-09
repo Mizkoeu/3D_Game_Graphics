@@ -1,0 +1,23 @@
+Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
+	precision highp float;
+	varying vec2 texCoord;
+	varying vec4 worldPos;
+	varying vec3 worldNormal;
+	uniform sampler2D probeTexture;
+	uniform vec4 lightPos[2]; // xyz is the direction, w is 0
+	uniform vec4 mainDir[2];
+	uniform vec4 lightPowerDensity[2]; // w ignored
+	uniform vec3 cameraPos;
+  uniform vec3 objectPosition;
+
+
+	void main(void) {
+    vec3 viewDir = cameraPos - worldPos.xyz;
+    // compute ideal reflected direction
+    vec3 reflDir = reflect(-viewDir, worldNormal);
+    //find corresponding point in light probe
+    vec3 m = (normalize(vec3(0, 0, 1) + normalize(reflDir))) / 2.0;
+    vec2 probeTex = vec2(m.x + .5, -m.y + .5);  //compute this from reflDir as in prev. slide
+    gl_FragColor = texture2D(probeTexture, probeTex);
+	}
+`;
