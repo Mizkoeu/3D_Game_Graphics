@@ -61,7 +61,7 @@ let Scene = function(gl) {
   this.lightSource.lightPos = new Vec4Array(2);
   this.lightSource.lightPowerDensity = new Vec4Array(2);
   this.lightSource.mainDir = new Vec4Array(2);
-  this.lightSource.lightPos.at(0).set(1, 1, 1, 0);
+  this.lightSource.lightPos.at(0).set(-.85, .95, -.85, 0);
   this.lightSource.lightPowerDensity.at(0).set(3, 3, 3, 0);
   //this.lightSource.lightPos.at(1).set(-.2, 10, 5, 1);
   this.lightSource.lightPowerDensity.at(1).set(5, 5, 5, 0);
@@ -100,7 +100,7 @@ let Scene = function(gl) {
   this.carTexture = new Texture2D(gl, "./json/chevy/chevy.png");
   this.carMat = new Material(gl, this.shinyProgram);
   this.carMat.colorTexture.set(this.carTexture.glTexture);
-  this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.mirrorMaterial]));
+  this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.carMat]));
   this.car.position = new Vec3(-.2, .1, -1.5);
   this.car.scale = .03;
   this.car.acceleration = new Vec2(.02, -.08);

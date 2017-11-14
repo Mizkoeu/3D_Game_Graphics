@@ -134,6 +134,8 @@ PerspectiveCamera.prototype.move = function(dt, keysPressed) {
   }
 
   this.updateViewMatrix();
+  //this.updateProjMatrix();
+  //QUESTION: WHY DON'T WE NEED TO UPDATE PROJMATRIX???
 };
 
 //Event Handlers
