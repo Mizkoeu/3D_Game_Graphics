@@ -30,6 +30,7 @@ let Scene = function(gl) {
   //geometries
   this.textureGeometry = new TexturedIndexedTrianglesGeometry(gl, "./Slowpoke.json");
   this.quadGeometry = new TexturedQuadGeometry(gl);
+  this.skyGeometry = new QuadGeometry(gl);
 
   //materials
   this.mirrorMaterial = new Material(gl, this.mirrorProgram);
@@ -61,8 +62,8 @@ let Scene = function(gl) {
   this.lightSource.lightPos = new Vec4Array(2);
   this.lightSource.lightPowerDensity = new Vec4Array(2);
   this.lightSource.mainDir = new Vec4Array(2);
-  this.lightSource.lightPos.at(0).set(-.85, .95, -.85, 0);
-  this.lightSource.lightPowerDensity.at(0).set(3, 3, 3, 0);
+  this.lightSource.lightPos.at(0).set(-1, 1, -1, 0);
+  this.lightSource.lightPowerDensity.at(0).set(4, 4, 4, 0);
   //this.lightSource.lightPos.at(1).set(-.2, 10, 5, 1);
   this.lightSource.lightPowerDensity.at(1).set(5, 5, 5, 0);
   this.lightSource.mainDir.at(0).set(-1, -1, -1, 0);
@@ -77,9 +78,8 @@ let Scene = function(gl) {
 
   this.gameObjects = [];
   //Create Skydome
-  this.sky = new GameObject(new Mesh(this.quadGeometry, this.skyMaterial));
-  this.sky.pitch = Math.PI/2.0;
-  //this.sky.position.z = 40.0;
+  this.sky = new GameObject(new Mesh(this.skyGeometry, this.skyMaterial));
+  //this.sky.pitch = Math.PI/2.0;
   this.gameObjects.push(this.sky);
 
   //Create the land Scene

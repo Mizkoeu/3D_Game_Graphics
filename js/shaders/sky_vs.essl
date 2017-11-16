@@ -11,12 +11,16 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
   uniform mat4 modelViewProjMatrix;
   uniform mat4 rayDirMatrix;
 
+	int fx() {
+		
+	}
+
 	void main(void) {
-    gl_Position = vec4(vertexPosition.xyz, 1) * modelMatrix;
-    gl_Position.z = .999999;
+    gl_Position = vertexPosition;
+    gl_Position.z = .999;
 		texCoord = vertexTexCoord;
     worldNormal = (modelMatrixInverse * vec4(vertexNormal, 0)).xyz;
-		worldPos = vec4(vertexPosition.xyz, 1) * modelMatrix;
-    rayDir = worldPos * rayDirMatrix;
+		worldPos = vertexPosition * modelMatrix;
+    rayDir = vertexPosition * rayDirMatrix;
 	}
 `;
