@@ -1,0 +1,29 @@
+Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
+	precision highp float;
+	varying vec2 texCoord;
+	varying vec4 worldPos;
+	varying vec3 worldNormal;
+	uniform sampler2D colorTexture;
+	uniform vec4 lightPos[2]; // xyz is the direction, w is 0
+	uniform vec4 mainDir[2];
+	uniform vec4 lightPowerDensity[2]; // w ignored
+	uniform vec3 cameraPos;
+
+
+	void main(void) {
+		vec3 light = vec3(1, 1, 1);
+		gl_FragColor = vec4(0, 0, 0, 0);
+		for (int i=0;i<2;i++) {
+			vec3 lightDir = lightPos[i].xyz - lightPos[i].w * worldPos.xyz;
+			float cosTheta = dot(normalize(lightDir), normalize(worldNormal));
+			vec4 powerDensity = vec4(0, 0, 0, 0);
+			if (mainDir[i].w == 1.0) {
+				powerDensity = lightPowerDensity[i] * pow(max(dot(normalize(mainDir[i].xyz), normalize((-1.0) * lightDir)), 0.0), 12.0);
+			} else {
+				powerDensity = lightPowerDensity[i];
+			}
+			gl_FragColor += vec4 ((powerDensity/(pow(length(lightDir), 2.0)) *
+														texture2D(colorTexture, texCoord)).rgb * max(cosTheta, 0.0), 1);
+		}
+	}
+`;

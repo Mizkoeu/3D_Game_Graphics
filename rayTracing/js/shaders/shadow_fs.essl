@@ -1,0 +1,18 @@
+Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
+	precision highp float;
+	varying vec2 texCoord;
+	varying vec4 worldPos;
+	varying vec3 worldNormal;
+	uniform sampler2D colorTexture;
+	uniform vec4 lightPos[2]; // xyz is the direction, w is 0
+	uniform vec4 mainDir[2];
+	uniform vec4 lightPowerDensity[2]; // w ignored
+	uniform vec3 cameraPos;
+  uniform vec3 objectPosition;
+
+
+	void main(void) {
+    float opacity = pow((1.0/(objectPosition.y + 1.0)), 0.3);
+		gl_FragColor = vec4(0, 0, 0, opacity);
+	}
+`;
