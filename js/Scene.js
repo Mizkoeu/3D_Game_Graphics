@@ -101,7 +101,7 @@ let Scene = function(gl) {
   this.carMat = new Material(gl, this.shinyProgram);
   this.carMat.colorTexture.set(this.carTexture.glTexture);
   this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.carMat]));
-  this.car.position = new Vec3(-.2, .1, -1.5);
+  this.car.position = new Vec3(0.0, .1, -1.5);
   this.car.scale = .03;
   this.car.acceleration = new Vec2(.02, -.08);
   this.gameObjects.push(this.car);

@@ -34,7 +34,7 @@ let Scene = function(gl) {
 
   //materials
   this.mirrorMaterial = new Material(gl, this.mirrorProgram);
-  this.mirrorTexture = new Texture2D(gl, "./probe.png");
+  this.mirrorTexture = new Texture2D(gl, "../probe.png");
   this.skyTexture = new Texture2D(gl, "./sky.jpg");
   this.mirrorMaterial.probeTexture.set(this.mirrorTexture.glTexture);
   this.shadowMaterial = new Material(gl, this.shadowProgram);
@@ -70,12 +70,6 @@ let Scene = function(gl) {
   //this.lightSource.mainDir.at(1).set(0, -1, 5, 0);
   this.spotLight;
 
-  console.log(this.lightSource.lightPos.at(0));
-  console.log(this.lightSource.lightPowerDensity.at(0));
-  //this.lightSource.push(new Vec4Array[(new Vec4(1, 1.5, 1, 1))], new Vec4Array[(new Vec4(0, -1, -1, 0))]);
-
-  //this.bodyMaterial.lightPos.set(this.lightSource);
-
   this.gameObjects = [];
   //Create Skydome
   this.sky = new GameObject(new Mesh(this.skyGeometry, this.skyMaterial));
@@ -86,8 +80,6 @@ let Scene = function(gl) {
   meh.transform(new Vec3(0, 3, 0), new Vec3(.5, 2, .5));
   this.sky.quadricSet.push(quadrix);
   this.sky.quadricSet.push(meh);
-
-  //this.sky.pitch = Math.PI/2.0;
   this.gameObjects.push(this.sky);
 
   //Create the land Scene
@@ -108,8 +100,8 @@ let Scene = function(gl) {
   this.carTexture = new Texture2D(gl, "./json/chevy/chevy.png");
   this.carMat = new Material(gl, this.shinyProgram);
   this.carMat.colorTexture.set(this.carTexture.glTexture);
-  this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.carMat]));
-  this.car.position = new Vec3(-.2, .1, -1.5);
+  this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.mirrorMaterial]));
+  this.car.position = new Vec3(0.0, .1, -7.5);
   this.car.scale = .03;
   this.car.acceleration = new Vec2(.02, -.08);
   this.gameObjects.push(this.car);
@@ -170,13 +162,6 @@ let Scene = function(gl) {
     this.balloons.push(balloon);
     this.gameObjects.push(balloon);
   }
-
-  //Thunderbolt
-  // this.createObject(gl, "heli", "./json/heli/heliait.png", "./json/heli/heli1.json");
-  // //this.createObject(gl, "heliRotor", "./json/heli/heli.png", "./json/heli/mainrotor.json");
-  // this.heli.orientation = -Math.PI/2.0;
-  // this.heli.position = new Vec3(0, 1, 0);
-  //this.heliRotor.parent = this.heli;
 
   //Trees
   this.treeTexture = new Texture2D(gl, "./json/tree.png");
@@ -360,10 +345,10 @@ Scene.prototype.update = function(gl, keysPressed) {
   //   object.drawShadow(theScene.camera, theScene.lightSource, theScene.shadowMaterial);
   // });
 
-  // this.car.draw(this.camera, this.lightSource);
-  // this.wheels.forEach(function(o) {
-  //   o.draw(theScene.camera, theScene.lightSource);
-  // })
+  this.car.draw(this.camera, this.lightSource);
+  this.wheels.forEach(function(o) {
+    o.draw(theScene.camera, theScene.lightSource);
+  })
   this.sky.draw(this.camera, this.lightSource);
   // this.car.drawShadow(this.camera, this.lightSource, this.shadowMaterial);
 
