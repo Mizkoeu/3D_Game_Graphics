@@ -101,8 +101,8 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 			vec3 lightDir = lightPos[i].xyz - lightPos[i].w * r.xyz;
 
 			findBestHit(r, vec4(normalize(lightDir), 0.0), shadowT, bestBrdf, A);
-			// if (shadowT > 0.0 && shadowT*lightPos[i].w < length(lightDir)) {
-			if (shadowT != -1.0) {
+			if (shadowT > 0.0 && shadowT*lightPos[i].w < length(lightDir)) {
+			// if (shadowT != -1.0) {
 			 	finalColor += vec4(0, 0, 0, 1);
 				//finalColor += vec4(0, 0, 0, 1);
 			} else {
