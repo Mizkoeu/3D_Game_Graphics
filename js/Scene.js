@@ -74,6 +74,7 @@ let Scene = function(gl) {
   this.gameObjects = [];
   //Create Skydome
   this.sky = new GameObject(new Mesh(this.skyGeometry, this.skyMaterial));
+<<<<<<< HEAD
   var quadrix = new ClippedQuadric();
   var meh = new ClippedQuadric();
   quadrix.setUnitSphere();
@@ -81,6 +82,9 @@ let Scene = function(gl) {
   meh.transform(new Vec3(0, 2, 0), new Vec3(.5, 3, .5));
   this.sky.quadricSet.push(quadrix);
   this.sky.quadricSet.push(meh);
+=======
+  //this.sky.pitch = Math.PI/2.0;
+>>>>>>> 1dd06c60f957dcee2b64f6b166649e36c3cf2f06
   this.gameObjects.push(this.sky);
 
   //Create the land Scene
@@ -101,8 +105,13 @@ let Scene = function(gl) {
   this.carTexture = new Texture2D(gl, "./json/chevy/chevy.png");
   this.carMat = new Material(gl, this.shinyProgram);
   this.carMat.colorTexture.set(this.carTexture.glTexture);
+<<<<<<< HEAD
   this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.mirrorMaterial]));
   this.car.position = new Vec3(0.0, .1, -7.5);
+=======
+  this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.carMat]));
+  this.car.position = new Vec3(0.0, .1, -1.5);
+>>>>>>> 1dd06c60f957dcee2b64f6b166649e36c3cf2f06
   this.car.scale = .03;
   this.car.acceleration = new Vec2(.02, -.08);
   this.gameObjects.push(this.car);
