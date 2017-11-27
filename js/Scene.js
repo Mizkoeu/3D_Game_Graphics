@@ -30,10 +30,11 @@ let Scene = function(gl) {
   //geometries
   this.textureGeometry = new TexturedIndexedTrianglesGeometry(gl, "./Slowpoke.json");
   this.quadGeometry = new TexturedQuadGeometry(gl);
+  this.skyGeometry = new QuadGeometry(gl);
 
   //materials
   this.mirrorMaterial = new Material(gl, this.mirrorProgram);
-  this.mirrorTexture = new Texture2D(gl, "./probe.png");
+  this.mirrorTexture = new Texture2D(gl, "../probe.png");
   this.skyTexture = new Texture2D(gl, "./sky.jpg");
   this.mirrorMaterial.probeTexture.set(this.mirrorTexture.glTexture);
   this.shadowMaterial = new Material(gl, this.shadowProgram);
@@ -53,33 +54,33 @@ let Scene = function(gl) {
   this.eyeMaterial.colorTexture.set(this.texture2.glTexture);
   this.landMaterial.colorTexture.set(this.landTexture.glTexture);
   this.skyMaterial.probeTexture.set(this.skyTexture.glTexture);
-  //Create a camera
-  this.camera = new PerspectiveCamera();
 
   //Array of Light sources
   this.lightSource = new lightSource();
   this.lightSource.lightPos = new Vec4Array(2);
   this.lightSource.lightPowerDensity = new Vec4Array(2);
   this.lightSource.mainDir = new Vec4Array(2);
-  this.lightSource.lightPos.at(0).set(-.85, .95, -.85, 0);
-  this.lightSource.lightPowerDensity.at(0).set(3, 3, 3, 0);
+  this.lightSource.lightPos.at(0).set(-1, 1, -1, 0);
+  this.lightSource.lightPowerDensity.at(0).set(4, 4, 4, 0);
   //this.lightSource.lightPos.at(1).set(-.2, 10, 5, 1);
   this.lightSource.lightPowerDensity.at(1).set(5, 5, 5, 0);
   this.lightSource.mainDir.at(0).set(-1, -1, -1, 0);
   //this.lightSource.mainDir.at(1).set(0, -1, 5, 0);
   this.spotLight;
 
-  console.log(this.lightSource.lightPos.at(0));
-  console.log(this.lightSource.lightPowerDensity.at(0));
-  //this.lightSource.push(new Vec4Array[(new Vec4(1, 1.5, 1, 1))], new Vec4Array[(new Vec4(0, -1, -1, 0))]);
-
-  //this.bodyMaterial.lightPos.set(this.lightSource);
+  //Create a camera
+  this.camera = new PerspectiveCamera();
 
   this.gameObjects = [];
   //Create Skydome
-  this.sky = new GameObject(new Mesh(this.quadGeometry, this.skyMaterial));
-  this.sky.pitch = Math.PI/2.0;
-  //this.sky.position.z = 40.0;
+  this.sky = new GameObject(new Mesh(this.skyGeometry, this.skyMaterial));
+  var quadrix = new ClippedQuadric();
+  var meh = new ClippedQuadric();
+  quadrix.setUnitSphere();
+  meh.setUnitCylinder();
+  meh.transform(new Vec3(0, 2, 0), new Vec3(.5, 3, .5));
+  this.sky.quadricSet.push(quadrix);
+  this.sky.quadricSet.push(meh);
   this.gameObjects.push(this.sky);
 
   //Create the land Scene
@@ -100,8 +101,8 @@ let Scene = function(gl) {
   this.carTexture = new Texture2D(gl, "./json/chevy/chevy.png");
   this.carMat = new Material(gl, this.shinyProgram);
   this.carMat.colorTexture.set(this.carTexture.glTexture);
-  this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.carMat]));
-  this.car.position = new Vec3(-.2, .1, -1.5);
+  this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.mirrorMaterial]));
+  this.car.position = new Vec3(0.0, .1, -7.5);
   this.car.scale = .03;
   this.car.acceleration = new Vec2(.02, -.08);
   this.gameObjects.push(this.car);
@@ -162,13 +163,6 @@ let Scene = function(gl) {
     this.balloons.push(balloon);
     this.gameObjects.push(balloon);
   }
-
-  //Thunderbolt
-  // this.createObject(gl, "heli", "./json/heli/heliait.png", "./json/heli/heli1.json");
-  // //this.createObject(gl, "heliRotor", "./json/heli/heli.png", "./json/heli/mainrotor.json");
-  // this.heli.orientation = -Math.PI/2.0;
-  // this.heli.position = new Vec3(0, 1, 0);
-  //this.heliRotor.parent = this.heli;
 
   //Trees
   this.treeTexture = new Texture2D(gl, "./json/tree.png");
@@ -257,73 +251,25 @@ Scene.prototype.update = function(gl, keysPressed) {
   var dx = new Vec3(0, 0, 0);
   var elevation = new Vec3(0, 0, 0);
 
-  if (keysPressed.SPACE === true) {
-    this.rotor.orientation += 15 * dt;
-    this.car.speed.y = 1.8
-    this.car.pitch -= .01;
-    if (this.car.pitch <= -.12) {
-      this.car.pitch = -.12;
-    }
-    elevation = new Vec3(0, this.car.speed.y * dt, 0);
-  } else {
-    if (this.car.pitch < 0.0) {
-      this.car.pitch +=.02;
-    } else {this.car.pitch = 0.0;}
-    if (this.car.position.y <= 0) {
-      this.car.speed.y = 0;
-      this.car.position.y = 0;
-    } else {
-      this.car.speed.y += this.car.acceleration.y;
-      elevation = new Vec3(0, this.car.speed.y * dt, 0);
-    }
-  }
   if (keysPressed.UP === true) {
-    this.car.speed.x += this.car.acceleration.x;
-    this.wheels.forEach(function(wheel) {
-      wheel.rotation += .5;
-    });
-  } else if (keysPressed.DOWN === true) {
-    this.car.speed.x -= this.car.acceleration.x;
-    this.wheels.forEach(function(wheel) {
-      wheel.rotation -= .5;
-    });
-    //QUESTION!!!!! WHY can't I changed the front value without changing the faceDirection???
-  } else {
-    //decelerate if no key is pressed.
-    if (this.car.speed.x <= .03 && this.car.speed.x >= -.03) {
-      this.car.speed.x = 0;
-    } else if (this.car.speed.x > .03) {
-      this.car.speed.x -= .03;
-    } else {
-      this.car.speed.x += .03;
-    }
+    this.sky.quadricSet[1].transform(new Vec3(0, dt, 0), 1.0);
+  }
+  if (keysPressed.DOWN === true) {
+    this.sky.quadricSet[1].transform(new Vec3(0, -dt, 0), 1.0);
   }
   if (keysPressed.LEFT === true) {
-    this.car.orientation += .05;
-    this.car.tilt -= .01;
-    if (this.car.tilt <= -.1) {
-      this.car.tilt = -.1;
-    }
-    var rotateMat = (new Mat4()).rotate(.05, new Vec3(0, 1, 0));
-    this.car.faceDirection.set((new Vec4(front, 0)).mul(rotateMat));
-    console.log(this.car.faceDirection);
-  } else if (keysPressed.RIGHT === true) {
-    this.car.orientation -= .05;
-    this.car.tilt += .01;
-    if (this.car.tilt >= .1) {
-      this.car.tilt = .1;
-    }
-    var rotateMat = (new Mat4()).rotate(-.05, new Vec3(0, 1, 0));
-    this.car.faceDirection.set((new Vec4(front, 0)).mul(rotateMat));
-  } else {
-    if (this.car.tilt <= -.01) {
-      this.car.tilt += .01;
-    } else if (this.car.tilt >= .01) {
-      this.car.tilt -= .01;
-    } else {
-      this.car.tilt = 0.0;
-    }
+    this.sky.quadricSet[1].transform(new Vec3(dt, 0, 0), 1.0);
   }
+  if (keysPressed.RIGHT === true) {
+    this.sky.quadricSet[1].transform(new Vec3(-dt, 0, 0), 1.0);
+  }
+  if (keysPressed.Z === true) {
+    this.sky.quadricSet[1].transform(new Vec3(0, 0, -dt), 1.0);
+  }
+  if (keysPressed.X === true) {
+    this.sky.quadricSet[1].transform(new Vec3(0, 0, dt), 1.0);
+  }
+
   dx = front.times(this.car.speed.x);
   this.car.position.add(dx).add(elevation);
   this.camera.position.add(dx).add(elevation);
@@ -346,15 +292,17 @@ Scene.prototype.update = function(gl, keysPressed) {
   this.lightSource.mainDir.at(1).set(new Vec4(front.times(50).plus(new Vec3(0, -1, 0))), 1);
   this.lightSource.lightPos.at(1).set(this.spotLight);
   //drawing the shapes!!!
-  // this.renderObject.draw(this.camera, this.lightSource);
-  // this.newPoke.draw(this.camera, this.lightSource);
+
+  // this.gameObjects.forEach(function(object) {
+  //   object.draw(theScene.camera, theScene.lightSource);
+  //   object.drawShadow(theScene.camera, theScene.lightSource, theScene.shadowMaterial);
+  // });
+
   // this.car.draw(this.camera, this.lightSource);
-  // this.land.draw(this.camera, this.lightSource);
-  this.gameObjects.forEach(function(object) {
-    object.draw(theScene.camera, theScene.lightSource);
-    object.drawShadow(theScene.camera, theScene.lightSource, theScene.shadowMaterial);
-  });
-  // this.car.draw(this.camera, this.lightSource);
+  // this.wheels.forEach(function(o) {
+  //   o.draw(theScene.camera, theScene.lightSource);
+  // })
+  this.sky.draw(this.camera, this.lightSource);
   // this.car.drawShadow(this.camera, this.lightSource, this.shadowMaterial);
 
   // this.gameObjects.forEach(function(object) {

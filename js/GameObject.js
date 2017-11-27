@@ -1,5 +1,7 @@
 "use strict"
 let GameObject = function(mesh) {
+  this.quadricSet = [];
+
   this.mesh = mesh;
   this.isGround = false;
 
@@ -52,6 +54,40 @@ GameObject.prototype.draw = function(camera, lightSource){
   Material.lightPowerDensity.set(lightSource.lightPowerDensity);
   Material.mainDir.set(lightSource.mainDir);
   Material.cameraPos.set(camera.position);
+
+  for (var i=0;i<this.quadricSet.length;i++){
+    Material.quadrics.at(i*2).set(this.quadricSet[i].surfaceCoeffMatrix);
+    Material.quadrics.at(i*2+1).set(this.quadricSet[i].clipperCoeffMatrix);
+  };
+
+    //shape
+    // Material.quadrics.at(0).set(
+    // 1, 0, 0, 0,
+    // 0, 0, 0, 0,
+    // 0, 0, 1, 0,
+    // 0, 0, 0, -1);
+    // //clipper
+    // Material.quadrics.at(1).set(
+    // 0, 0, 0, 0,
+    // 0, 1, 0, 0,
+    // 0, 0, 0, 0,
+    // 0, 0, 0, -.2);
+    // Material.quadrics.at(2).set(
+    // 0, 0, 0, 0,
+    // 0, 0, 0, 0,
+    // 0, 0, 0, 0,
+    // 0, 0, 0, 0);
+    // //clipper
+    // Material.quadrics.at(3).set(
+    // 0, 0, 0, 0,
+    // 0, 0, 0, 0,
+    // 0, 0, 1, 0,
+    // 0, 0, 0, -1);
+    //material
+    Material.brdfs.at(0).set(0, .8, 0, 50);
+    Material.brdfs.at(1).set(.2, .2, .6, 80);
+
+
   this.mesh.draw();
 };
 

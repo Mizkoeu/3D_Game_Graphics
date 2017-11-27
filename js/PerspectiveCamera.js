@@ -1,14 +1,14 @@
 "use strict"
 var PerspectiveCamera = function()
 {
-  this.position = new Vec3(0.0, 0.8, 1.8);
-  this.ahead = new Vec3(0.0, 0.0, -1.0);
-  this.right = new Vec3(1.0, 0.0, 0.0);
+  this.position = new Vec3(0.0, 0.8, -10.0);
+  this.ahead = new Vec3(0.0, 0.0, 1.0);
+  this.right = new Vec3(-1.0, 0.0, 0.0);
   this.up = new Vec3(0.0, 1.0, 0.0);
 
   this.rotation = 0.0;
 
-  this.yaw = 0.0;
+  this.yaw = 3.14;
   this.pitch = 0.0;
   this.fov = 1.0;
   this.aspect = 1.0;
