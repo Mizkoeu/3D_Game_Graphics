@@ -31,6 +31,17 @@ ClippedQuadric.prototype.setUnitCylinder = function() {
                             		0, 0, 0, -1);
 };
 
+ClippedQuadric.prototype.setParaboloid = function() {
+  this.surfaceCoeffMatrix.set(	1, 0, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, 1, 0,
+                            		0, -1, 0, 0);
+  this.clipperCoeffMatrix.set(	0, 0, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, 0, 0);
+};
+
 ClippedQuadric.prototype.transform = function (translate, scale) {
   let afterMat = (new Mat4()).scale(scale).translate(translate).invert().transpose();
   let preMat = (new Mat4()).scale(scale).translate(translate).invert();

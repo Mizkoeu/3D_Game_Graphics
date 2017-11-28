@@ -76,11 +76,15 @@ let Scene = function(gl) {
   this.sky = new GameObject(new Mesh(this.skyGeometry, this.skyMaterial));
   var quadrix = new ClippedQuadric();
   var meh = new ClippedQuadric();
+  var king = new ClippedQuadric();
+  king.setParaboloid();
+  king.transform(new Vec3(0, -1, 0), new Vec3(.3, .1, .3));
   quadrix.setUnitSphere();
   meh.setUnitCylinder();
   meh.transform(new Vec3(0, 2, 0), new Vec3(.5, 3, .5));
   this.sky.quadricSet.push(quadrix);
   this.sky.quadricSet.push(meh);
+  //this.sky.quadricSet.push(king);
   this.gameObjects.push(this.sky);
 
   //Create the land Scene
