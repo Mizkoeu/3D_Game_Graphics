@@ -37,18 +37,39 @@ ClippedQuadric.prototype.setParaboloid = function() {
                             		0, 0, 1, 0,
                             		0, -1, 0, 0);
   this.clipperCoeffMatrix.set(	0, 0, 0, 0,
+                            		0, 1, 0, 0,
                             		0, 0, 0, 0,
-                            		0, 0, 0, 0,
+                            		0, 0, 0, -200);
+};
+
+ClippedQuadric.prototype.setCone = function() {
+  this.surfaceCoeffMatrix.set(	1, 0, 0, 0,
+                            		0, -1, 0, 0,
+                            		0, 0, 1, 0,
                             		0, 0, 0, 0);
+  this.clipperCoeffMatrix.set(	0, 0, 0, 0,
+                            		0, 1, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, 0, -200);
 };
 
-ClippedQuadric.prototype.transform = function (translate, scale) {
-  let afterMat = (new Mat4()).scale(scale).translate(translate).invert().transpose();
-  let preMat = (new Mat4()).scale(scale).translate(translate).invert();
+ClippedQuadric.prototype.transform = function (matT) {
+  // let afterMat = (new Mat4()).scale(scale).translate(translate).invert().transpose();
+  // let preMat = (new Mat4()).scale(scale).translate(translate).invert();
+  // this.surfaceCoeffMatrix.premul(preMat).mul(afterMat);
+  // this.clipperCoeffMatrix.premul(preMat).mul(afterMat);
+  this.transformSurface(matT);
+  this.transformClipping(matT);
+};
+
+ClippedQuadric.prototype.transformSurface = function(matT) {
+  let preMat = (new Mat4()).mul(matT).invert();
+  let afterMat = (new Mat4()).mul(matT).invert().transpose();
   this.surfaceCoeffMatrix.premul(preMat).mul(afterMat);
+}
+
+ClippedQuadric.prototype.transformClipping = function (matT) {
+  let preMat = (new Mat4()).mul(matT).invert();
+  let afterMat = (new Mat4()).mul(matT).invert().transpose();
   this.clipperCoeffMatrix.premul(preMat).mul(afterMat);
-};
-
-ClippedQuadric.prototype.transformClipping = function () {
-
 };

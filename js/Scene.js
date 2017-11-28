@@ -77,14 +77,19 @@ let Scene = function(gl) {
   var quadrix = new ClippedQuadric();
   var meh = new ClippedQuadric();
   var king = new ClippedQuadric();
-  king.setParaboloid();
-  king.transform(new Vec3(0, -1, 0), new Vec3(.3, .1, .3));
+  var chessBoard = new ClippedQuadric();
+  chessBoard.setUnitCylinder();
+  chessBoard.transform((new Mat4()).scale(8, .1, 8).translate(0, -2.5, 0));
+  king.setCone();
+  king.transform((new Mat4()).scale(.05, .2, .05).translate(0, 3, 0));
+  //king.transformClipping((new Mat4()).scale(1, .8, 1).translate(0, -1, 0));
   quadrix.setUnitSphere();
-  meh.setUnitCylinder();
-  meh.transform(new Vec3(0, 2, 0), new Vec3(.5, 3, .5));
+  meh.setParaboloid();
+  meh.transform((new Mat4()).scale(.2, .1, .2).translate(0, 1.6, 0));
   this.sky.quadricSet.push(quadrix);
   this.sky.quadricSet.push(meh);
-  //this.sky.quadricSet.push(king);
+  this.sky.quadricSet.push(chessBoard);
+  this.sky.quadricSet.push(king);
   this.gameObjects.push(this.sky);
 
   //Create the land Scene
@@ -256,22 +261,22 @@ Scene.prototype.update = function(gl, keysPressed) {
   var elevation = new Vec3(0, 0, 0);
 
   if (keysPressed.UP === true) {
-    this.sky.quadricSet[1].transform(new Vec3(0, dt, 0), 1.0);
+    this.sky.quadricSet[1].transform((new Mat4()).translate(0, dt, 0));
   }
   if (keysPressed.DOWN === true) {
-    this.sky.quadricSet[1].transform(new Vec3(0, -dt, 0), 1.0);
+    this.sky.quadricSet[1].transform((new Mat4()).translate(0, -dt, 0));
   }
   if (keysPressed.LEFT === true) {
-    this.sky.quadricSet[1].transform(new Vec3(dt, 0, 0), 1.0);
+    this.sky.quadricSet[1].transform((new Mat4()).translate(dt, 0, 0));
   }
   if (keysPressed.RIGHT === true) {
-    this.sky.quadricSet[1].transform(new Vec3(-dt, 0, 0), 1.0);
+    this.sky.quadricSet[1].transform((new Mat4()).translate(-dt, 0, 0));
   }
   if (keysPressed.Z === true) {
-    this.sky.quadricSet[1].transform(new Vec3(0, 0, -dt), 1.0);
+    this.sky.quadricSet[1].transform((new Mat4()).translate(0, 0, -dt));
   }
   if (keysPressed.X === true) {
-    this.sky.quadricSet[1].transform(new Vec3(0, 0, dt), 1.0);
+    this.sky.quadricSet[1].transform((new Mat4()).translate(0, 0, dt));
   }
 
   dx = front.times(this.car.speed.x);
