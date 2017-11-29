@@ -1,6 +1,7 @@
 "use strict"
 let GameObject = function(mesh) {
   this.quadricSet = [];
+  this.materialSet = [];
 
   this.mesh = mesh;
   this.isGround = false;
@@ -58,13 +59,8 @@ GameObject.prototype.draw = function(camera, lightSource){
   for (var i=0;i<this.quadricSet.length;i++){
     Material.quadrics.at(i*2).set(this.quadricSet[i].surfaceCoeffMatrix);
     Material.quadrics.at(i*2+1).set(this.quadricSet[i].clipperCoeffMatrix);
+    Material.brdfs.at(i).set(this.materialSet[i])
   };
-
-  Material.brdfs.at(0).set(1, 1, 1, 310);
-  Material.brdfs.at(1).set(.5, .6, .9, 280);
-  Material.brdfs.at(2).set(.2, .2, .2, 200);
-  Material.brdfs.at(3).set(.2, 1, .2, 80);
-
 
   this.mesh.draw();
 };

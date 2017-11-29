@@ -57,15 +57,16 @@ let Scene = function(gl) {
 
   //Array of Light sources
   this.lightSource = new lightSource();
-  this.lightSource.lightPos = new Vec4Array(2);
-  this.lightSource.lightPowerDensity = new Vec4Array(2);
-  this.lightSource.mainDir = new Vec4Array(2);
+  this.lightSource.lightPos = new Vec4Array(3);
+  this.lightSource.lightPowerDensity = new Vec4Array(3);
+  this.lightSource.mainDir = new Vec4Array(3);
   this.lightSource.lightPos.at(0).set(-1, 1, -1, 0);
   this.lightSource.lightPowerDensity.at(0).set(4, 4, 4, 0);
-  //this.lightSource.lightPos.at(1).set(-.2, 10, 5, 1);
-  this.lightSource.lightPowerDensity.at(1).set(5, 5, 5, 0);
-  this.lightSource.mainDir.at(0).set(-1, -1, -1, 0);
-  //this.lightSource.mainDir.at(1).set(0, -1, 5, 0);
+  this.lightSource.lightPowerDensity.at(1).set(15, 3, 3, 0);
+  this.lightSource.lightPowerDensity.at(2).set(3, 3, 15, 0);
+  //this.lightSource.mainDir.at(0).set(-1, -1, -1, 0);
+  this.lightSource.mainDir.at(1).set(0, -1, 0, 1);
+  this.lightSource.mainDir.at(1).set(0, -1, 0, 1);
   this.spotLight;
 
   //Create a camera
@@ -74,22 +75,48 @@ let Scene = function(gl) {
   this.gameObjects = [];
   //Create Skydome
   this.sky = new GameObject(new Mesh(this.skyGeometry, this.skyMaterial));
-  var quadrix = new ClippedQuadric();
-  var meh = new ClippedQuadric();
-  var king = new ClippedQuadric();
+  // var quadrix = new ClippedQuadric();
+  // var meh = new ClippedQuadric();
+  // var king = new ClippedQuadric();
+
+  // king.setHyperboloid();
+  // king.transform((new Mat4()).scale(.05, .2, .05).translate(0, 3, 0));
+  // king.transformClipping((new Mat4()).scale(1, .8, 1).translate(0, -1, 0));
+  // quadrix.setUnitSphere();
+  // meh.setParaboloid();
+  // meh.transform((new Mat4()).scale(.2, .1, .2).translate(0, 1.6, 0));
+  // this.sky.quadricSet.push(quadrix);
+  // this.sky.quadricSet.push(meh);
+  //this.sky.quadricSet.push(king);
+  this.chessPieces = [];
+  var kingPiece = new Chess(Chess.types.KING, 1, 1, 5);
+  var kingPiece2 = new Chess(Chess.types.KING, 2, 8, 5);
+  this.chessPieces.push(kingPiece);
+  this.chessPieces.push(kingPiece2);
+
+  //initialize light positions
+  this.lightSource.lightPos.at(1).set((4.5-kingPiece.row)*Chess.cellWidth, 1.5, (4.5-kingPiece.col)*Chess.cellWidth, 1);
+  this.lightSource.lightPos.at(2).set((4.5-kingPiece2.row)*Chess.cellWidth, 1.5, (4.5-kingPiece2.col)*Chess.cellWidth, 1);
+
+  for (var i=1;i<=8;i++) {
+    this.chessPieces.push(new Chess(Chess.types.PAWN, 1, 2, i));
+    this.chessPieces.push(new Chess(Chess.types.PAWN, 2, 7, i));
+  }
+  let theSky = this.sky;
+  this.chessPieces.forEach(function (o) {
+    o.quadrics.forEach(function (shape){
+      theSky.quadricSet.push(shape);
+    });
+    o.materials.forEach(function (material){
+      theSky.materialSet.push(material);
+    });
+  });
+
   var chessBoard = new ClippedQuadric();
   chessBoard.setUnitCylinder();
   chessBoard.transform((new Mat4()).scale(8, .1, 8).translate(0, -2.5, 0));
-  king.setCone();
-  king.transform((new Mat4()).scale(.05, .2, .05).translate(0, 3, 0));
-  //king.transformClipping((new Mat4()).scale(1, .8, 1).translate(0, -1, 0));
-  quadrix.setUnitSphere();
-  meh.setParaboloid();
-  meh.transform((new Mat4()).scale(.2, .1, .2).translate(0, 1.6, 0));
-  this.sky.quadricSet.push(quadrix);
-  this.sky.quadricSet.push(meh);
   this.sky.quadricSet.push(chessBoard);
-  this.sky.quadricSet.push(king);
+  this.sky.materialSet.push(new Vec4(.15, .15, .15, 200));
   this.gameObjects.push(this.sky);
 
   //Create the land Scene
@@ -261,22 +288,28 @@ Scene.prototype.update = function(gl, keysPressed) {
   var elevation = new Vec3(0, 0, 0);
 
   if (keysPressed.UP === true) {
-    this.sky.quadricSet[1].transform((new Mat4()).translate(0, dt, 0));
+    this.chessPieces[0].transform((new Mat4()).translate(0, 0, dt));
+    this.lightSource.lightPos.at(1).add(0, 0, dt, 0);
   }
   if (keysPressed.DOWN === true) {
-    this.sky.quadricSet[1].transform((new Mat4()).translate(0, -dt, 0));
+    this.chessPieces[0].transform((new Mat4()).translate(0, 0, -dt));
+    this.lightSource.lightPos.at(1).add(0, 0, -dt, 0);
   }
   if (keysPressed.LEFT === true) {
-    this.sky.quadricSet[1].transform((new Mat4()).translate(dt, 0, 0));
+    this.chessPieces[0].transform((new Mat4()).translate(dt, 0, 0));
+    this.lightSource.lightPos.at(1).add(dt, 0, 0, 0);
   }
   if (keysPressed.RIGHT === true) {
-    this.sky.quadricSet[1].transform((new Mat4()).translate(-dt, 0, 0));
+    this.chessPieces[0].transform((new Mat4()).translate(-dt, 0, 0));
+    this.lightSource.lightPos.at(1).add(-dt, 0, 0, 0);
   }
   if (keysPressed.Z === true) {
-    this.sky.quadricSet[1].transform((new Mat4()).translate(0, 0, -dt));
+    this.chessPieces[0].transform((new Mat4()).translate(0, dt, 0));
+    this.lightSource.lightPos.at(1).add(0, dt, 0, 0);
   }
   if (keysPressed.X === true) {
-    this.sky.quadricSet[1].transform((new Mat4()).translate(0, 0, dt));
+    this.chessPieces[0].transform((new Mat4()).translate(0, -dt, 0));
+    this.lightSource.lightPos.at(1).add(0, -dt, 0, 0);
   }
 
   dx = front.times(this.car.speed.x);
@@ -297,9 +330,6 @@ Scene.prototype.update = function(gl, keysPressed) {
   //move camera based on hotkeys
   this.camera.move(dt, keysPressed);
 
-  this.spotLight = new Vec4(this.car.position.plus(new Vec3(0, .8, 0)).plus(front.times(1)), 1);
-  this.lightSource.mainDir.at(1).set(new Vec4(front.times(50).plus(new Vec3(0, -1, 0))), 1);
-  this.lightSource.lightPos.at(1).set(this.spotLight);
   //drawing the shapes!!!
 
   // this.gameObjects.forEach(function(object) {

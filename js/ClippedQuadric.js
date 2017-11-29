@@ -53,6 +53,29 @@ ClippedQuadric.prototype.setCone = function() {
                             		0, 0, 0, -200);
 };
 
+ClippedQuadric.prototype.setHyperboloid = function() {
+  this.surfaceCoeffMatrix.set(	1, 0, 0, 0,
+                            		0, -1, 0, 0,
+                            		0, 0, 1, 0,
+                            		0, 0, 0, -1);
+  this.clipperCoeffMatrix.set(	0, 0, 0, 0,
+                            		0, 1, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, 0, -200);
+};
+
+ClippedQuadric.prototype.setBulge = function() {
+  this.surfaceCoeffMatrix.set(	1, 0, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, 1, 0,
+                            		0, -1, 0, 0);
+  this.clipperCoeffMatrix.set(	1, 0, 0, 0,
+                            		0, 1, 0, 0,
+                            		0, 0, 1, 0,
+                            		0, 0, 0, -8);
+};
+
+
 ClippedQuadric.prototype.transform = function (matT) {
   // let afterMat = (new Mat4()).scale(scale).translate(translate).invert().transpose();
   // let preMat = (new Mat4()).scale(scale).translate(translate).invert();

@@ -5,12 +5,14 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 	varying vec3 worldNormal;
   varying vec4 rayDir;
 	uniform sampler2D probeTexture;
-	uniform vec4 lightPos[2]; // xyz is the direction, w is 0
-	uniform vec4 mainDir[2];
-	uniform vec4 lightPowerDensity[2]; // w ignored
+	uniform vec4 lightPos[3]; // xyz is the direction, w is 0
+	uniform vec4 mainDir[3];
+	uniform vec4 lightPowerDensity[3]; // w ignored
 	uniform vec3 cameraPos;
-	uniform mat4 quadrics[64];
-	uniform vec4 brdfs[32];
+	uniform mat4 quadrics[128];
+	uniform vec4 brdfs[64];
+	const int numShapes = 57;
+	const int numLights = 3;
 
 	float intersectClippedQuadric(mat4 A, mat4 B, vec4 e, vec4 d) {
 		float a = dot(d * A, d);
@@ -54,7 +56,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 	bool findBestHit(vec4 e, vec4 d, out float bestT, out vec4 bestBrdf, out mat4 bestA) {
 		bestT = -1.0;
 		bestBrdf = vec4(0,0,0,0);
-		for(int i=0;i<3;i++) {
+		for(int i=0;i<numShapes;i++) {
 			mat4 A = quadrics[i*2];
 			mat4 B = quadrics[i*2+1];
 			vec4 curBrdf = brdfs[i];
@@ -77,7 +79,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 
 	bool getBestHit(vec4 e, vec4 d) {
 		float bestT = -1.0;
-		for(int i=0;i<3;i++) {
+		for(int i=0;i<numShapes;i++) {
 			mat4 A = quadrics[i*2];
 			mat4 B = quadrics[i*2+1];
 			float curT = intersectClippedQuadric(A, B, e, d);
@@ -92,7 +94,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 	vec4 shading(vec4 d, vec4 r, vec3 normal, vec4 brdf) {
 		vec4 finalColor = vec4(0, 0, 0, 0);
 		float shadowT; vec4 bestBrdf; mat4 A;
-    for (int i=0;i<1;i++) {
+    for (int i=0;i<numLights;i++) {
 
 			vec3 viewDir = normalize((-1.0) * d.xyz);
 			vec3 lightDir = lightPos[i].xyz - lightPos[i].w * r.xyz;
@@ -112,7 +114,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 
 				vec4 powerDensity;
 				if (mainDir[i].w == 1.0) {
-					powerDensity = lightPowerDensity[i] * pow(max(dot(normalize(mainDir[i].xyz), normalize((-1.0) * lightDir)), 0.0), 8.0);
+					powerDensity = lightPowerDensity[i] * pow(max(dot(normalize(mainDir[i].xyz), normalize((-1.0) * lightDir)), 0.0), 16.0);
 				} else {
 					powerDensity = lightPowerDensity[i];
 				}
@@ -140,25 +142,26 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 
 	//NOTE: Multiple LightSouce!!!
 	vec4 getBoardTexture(vec4 d, vec4 r, vec3 normal, vec4 brdf) {
-		for (int i=0;i<1;i++) {
-			vec3 lightDir = lightPos[i].xyz - lightPos[i].w * r.xyz;
-			// NOTE: for general directional lighting like the sun.
-			if (getBestHit(r+vec4(normal*0.001, 0), vec4(normalize(lightDir), 0.0))) {
-				return vec4(0, 0, 0, 1);
-			} else {
+		// vec4 finalColor;
+		// for (int i=0;i<numLights;i++) {
+		// 	vec3 lightDir = lightPos[i].xyz - lightPos[i].w * r.xyz;
+		// 	// NOTE: for general directional lighting like the sun.
+		// 	if (getBestHit(r+vec4(normal*0.001, 0), vec4(normalize(lightDir), 0.0))) {
+		// 		return vec4(0, 0, 0, 1);
+		// 	} else {
 				float cellWidth = 1.3;
 				float row = floor(r.x/cellWidth);
 				float col = floor(r.z/cellWidth);
 				if (row < 4.0 && row >= -4.0 && col < 4.0 && col >= -4.0){
 					if (mod((row-col), 2.0) == 1.0) {
-						return vec4(0, 0, 0, 1);
+						return shading(d, r, normal, vec4(0, 0, 0, 80));
 					} else {
-						return vec4(.8, .8, .8, 1);
+						return shading(d, r, normal, vec4(.8, .8, .8, 80));
 					}
 				}
-				return shading(d, r, normal, vec4(1, 0, 0, 80));
-			}
-		}
+				return shading(d, r, normal, vec4(.1, .1, .1, 80));
+		// 	}
+		// }
 	}
 
 	void reflectUpdate(inout vec4 e, inout vec4 d, vec4 r, vec3 normal) {

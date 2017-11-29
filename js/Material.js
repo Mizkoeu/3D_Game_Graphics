@@ -34,8 +34,8 @@ Material.lightPos = new Vec4Array(2);
 Material.lightPowerDensity = new Vec4Array(2);
 Material.cameraPos = new Vec3();
 Material.objectPosition = new Vec3();
-Material.quadrics = new Mat4Array(64);
-Material.brdfs = new Vec4Array(32);
+Material.quadrics = new Mat4Array(128);
+Material.brdfs = new Vec4Array(64);
 
 
 Material.prototype.commit = function() {
