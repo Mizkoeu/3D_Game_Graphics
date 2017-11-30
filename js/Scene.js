@@ -62,8 +62,8 @@ let Scene = function(gl) {
   this.lightSource.mainDir = new Vec4Array(3);
   this.lightSource.lightPos.at(0).set(-1, 1, -1, 0);
   this.lightSource.lightPowerDensity.at(0).set(4, 4, 4, 0);
-  this.lightSource.lightPowerDensity.at(1).set(15, 3, 3, 0);
-  this.lightSource.lightPowerDensity.at(2).set(3, 3, 15, 0);
+  this.lightSource.lightPowerDensity.at(1).set(15, 0, 0, 0);
+  this.lightSource.lightPowerDensity.at(2).set(0, 0, 15, 0);
   //this.lightSource.mainDir.at(0).set(-1, -1, -1, 0);
   this.lightSource.mainDir.at(1).set(0, -1, 0, 1);
   this.lightSource.mainDir.at(1).set(0, -1, 0, 1);
@@ -93,15 +93,17 @@ let Scene = function(gl) {
   var kingPiece2 = new Chess(Chess.types.KING, 2, 8, 5);
   this.chessPieces.push(kingPiece);
   this.chessPieces.push(kingPiece2);
+  this.chessPieces.push(new Chess(Chess.types.QUEEN, 1, 1, 4));
+  this.chessPieces.push(new Chess(Chess.types.QUEEN, 2, 8, 4));
 
   //initialize light positions
   this.lightSource.lightPos.at(1).set((4.5-kingPiece.row)*Chess.cellWidth, 1.5, (4.5-kingPiece.col)*Chess.cellWidth, 1);
   this.lightSource.lightPos.at(2).set((4.5-kingPiece2.row)*Chess.cellWidth, 1.5, (4.5-kingPiece2.col)*Chess.cellWidth, 1);
 
-  for (var i=1;i<=8;i++) {
-    this.chessPieces.push(new Chess(Chess.types.PAWN, 1, 2, i));
-    this.chessPieces.push(new Chess(Chess.types.PAWN, 2, 7, i));
-  }
+  // for (var i=1;i<=8;i++) {
+  //   this.chessPieces.push(new Chess(Chess.types.PAWN, 1, 2, i));
+  //   this.chessPieces.push(new Chess(Chess.types.PAWN, 2, 7, i));
+  // }
   let theSky = this.sky;
   this.chessPieces.forEach(function (o) {
     o.quadrics.forEach(function (shape){
@@ -243,25 +245,24 @@ Scene.prototype.update = function(gl, keysPressed) {
   Material.rayDirMatrix.set(this.camera.rayDirMatrix);
 
   //move Slowpoke
-  var rotateMat = (new Mat4()).rotate(.1, new Vec3(0, 1, 0));//.rotate(.1, new Vec3(1, 0, 0));
-  var rotateBack = (new Mat4()).rotate(-.1, new Vec3(0, 1, 0));
-  this.renderObject.faceDirection.set((new Vec4(this.renderObject.faceDirection, 0)).mul(rotateMat));
-  this.renderObject.position.add(this.renderObject.faceDirection.times(1.0));
-  this.renderObject.orientation += .1;
+  // var rotateMat = (new Mat4()).rotate(.1, new Vec3(0, 1, 0));//.rotate(.1, new Vec3(1, 0, 0));
+  // var rotateBack = (new Mat4()).rotate(-.1, new Vec3(0, 1, 0));
+  // this.renderObject.faceDirection.set((new Vec4(this.renderObject.faceDirection, 0)).mul(rotateMat));
+  // this.renderObject.position.add(this.renderObject.faceDirection.times(1.0));
+  // this.renderObject.orientation += .1;
 
-  for (var i=0; i<10; i++) {
-    var o = this.creatures[i];
-    if (i%2 === 0) {
-      o.faceDirection.set((new Vec4(o.faceDirection, 0)).mul(rotateMat));
-      o.orientation += .1;
-      o.position.add(o.faceDirection.times(3.2));
-    } else {
-      o.faceDirection.set((new Vec4(o.faceDirection, 0)).mul(rotateBack));
-      o.orientation -= .1;
-      o.position.add(o.faceDirection.times(2.2));
-    }
-
-  }
+  // for (var i=0; i<10; i++) {
+  //   var o = this.creatures[i];
+  //   if (i%2 === 0) {
+  //     o.faceDirection.set((new Vec4(o.faceDirection, 0)).mul(rotateMat));
+  //     o.orientation += .1;
+  //     o.position.add(o.faceDirection.times(3.2));
+  //   } else {
+  //     o.faceDirection.set((new Vec4(o.faceDirection, 0)).mul(rotateBack));
+  //     o.orientation -= .1;
+  //     o.position.add(o.faceDirection.times(2.2));
+  //   }
+  // }
   //this.renderObject.pitch -= .1;
   //console.log(this.renderObject.faceDirection);
   //this.renderObject.tilt += .1;
@@ -276,16 +277,16 @@ Scene.prototype.update = function(gl, keysPressed) {
   // this.heli.position.x = Math.sin(timeAtThisFrame/450.0) * 5 + .6;
   // this.heli.position.z = Math.cos(timeAtThisFrame/450.0) * 5 - 1.2;
 
-  for (var i=0;i<this.balloons.length;i++) {
-    this.balloons[i].position.y = Math.cos(timeAtThisFrame/300.0 + i) * .2 + 1.2;
-  }
+  // for (var i=0;i<this.balloons.length;i++) {
+  //   this.balloons[i].position.y = Math.cos(timeAtThisFrame/300.0 + i) * .2 + 1.2;
+  // }
 
   //objects in the scene move according to hotkeys
   let theScene = this;
-  let front = this.car.faceDirection;
-  this.rotor.orientation += 2 * dt;
-  var dx = new Vec3(0, 0, 0);
-  var elevation = new Vec3(0, 0, 0);
+  // let front = this.car.faceDirection;
+  // this.rotor.orientation += 2 * dt;
+  // var dx = new Vec3(0, 0, 0);
+  // var elevation = new Vec3(0, 0, 0);
 
   if (keysPressed.UP === true) {
     this.chessPieces[0].transform((new Mat4()).translate(0, 0, dt));
@@ -312,19 +313,20 @@ Scene.prototype.update = function(gl, keysPressed) {
     this.lightSource.lightPos.at(1).add(0, -dt, 0, 0);
   }
 
-  dx = front.times(this.car.speed.x);
-  this.car.position.add(dx).add(elevation);
-  this.camera.position.add(dx).add(elevation);
+  // dx = front.times(this.car.speed.x);
+  // this.car.position.add(dx).add(elevation);
+  // this.camera.position.add(dx).add(elevation);
 
   //Focus shot
   if (keysPressed.F === true) {
-    this.camera.track(this.car);
+    this.chessPieces[0].transform((new Mat4()).translate(0, dt, 0));
+    this.lightSource.lightPos.at(1).add(0, dt, 0, 0);
   }
 
   //Tracking shot
-  if (keysPressed.T === true) {
-    // let t = timeAtThisFrame/1000.0;
-    this.camera.path(Math.PI/100.0);
+  if (keysPressed.G === true) {
+    this.chessPieces[0].transform((new Mat4()).translate(0, -dt, 0));
+    this.lightSource.lightPos.at(1).add(0, -dt, 0, 0);
   }
 
   //move camera based on hotkeys
