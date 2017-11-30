@@ -9,10 +9,11 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 	uniform vec4 mainDir[3];
 	uniform vec4 lightPowerDensity[3]; // w ignored
 	uniform vec3 cameraPos;
-	uniform mat4 quadrics[128];
-	uniform vec4 brdfs[64];
-	const int numShapes = 57;
-	const int numLights = 3;
+	uniform mat4 quadrics[200];
+	uniform vec4 brdfs[100];
+	const int numShapes = 65;
+	const int numLights = 1;
+	const bool shadow = true;
 
 	float intersectClippedQuadric(mat4 A, mat4 B, vec4 e, vec4 d) {
 		float a = dot(d * A, d);
@@ -104,17 +105,16 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 			// if (shadowT > 0.0 && shadowT*lightPos[i].w < length(lightDir)) {
 
 			// NOTE: for general directional lighting like the sun.
-      if (getBestHit(r+vec4(normal*0.001, 0), vec4(normalize(lightDir), 0.0))) {
+      if (getBestHit(r+vec4(normal*0.001, 0), vec4(normalize(lightDir), 0.0)) && shadow == true) {
 			 	finalColor += vec4(0, 0, 0, 1);
 			} else {
 				vec3 halfWayVec = normalize(viewDir + normalize(lightDir));
-
 				float deviation = max(dot(halfWayVec, normal), 0.0);
 				float cosTheta = max(dot(normalize(lightDir), normal), 0.0);
 
 				vec4 powerDensity;
 				if (mainDir[i].w == 1.0) {
-					powerDensity = lightPowerDensity[i] * pow(max(dot(normalize(mainDir[i].xyz), normalize((-1.0) * lightDir)), 0.0), 16.0);
+					powerDensity = lightPowerDensity[i] * pow(max(dot(normalize(mainDir[i].xyz), normalize((-1.0) * lightDir)), 0.0), 25.0);
 				} else {
 					powerDensity = lightPowerDensity[i];
 				}
@@ -142,26 +142,17 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 
 	//NOTE: Multiple LightSouce!!!
 	vec4 getBoardTexture(vec4 d, vec4 r, vec3 normal, vec4 brdf) {
-		// vec4 finalColor;
-		// for (int i=0;i<numLights;i++) {
-		// 	vec3 lightDir = lightPos[i].xyz - lightPos[i].w * r.xyz;
-		// 	// NOTE: for general directional lighting like the sun.
-		// 	if (getBestHit(r+vec4(normal*0.001, 0), vec4(normalize(lightDir), 0.0))) {
-		// 		return vec4(0, 0, 0, 1);
-		// 	} else {
-				float cellWidth = 1.3;
-				float row = floor(r.x/cellWidth);
-				float col = floor(r.z/cellWidth);
-				if (row < 4.0 && row >= -4.0 && col < 4.0 && col >= -4.0){
-					if (mod((row-col), 2.0) == 1.0) {
-						return shading(d, r, normal, vec4(0, 0, 0, 80));
-					} else {
-						return shading(d, r, normal, vec4(.8, .8, .8, 80));
-					}
-				}
-				return shading(d, r, normal, vec4(.1, .1, .1, 80));
-		// 	}
-		// }
+		float cellWidth = 1.3;
+		float row = floor(r.x/cellWidth);
+		float col = floor(r.z/cellWidth);
+		if (row < 4.0 && row >= -4.0 && col < 4.0 && col >= -4.0){
+			if (mod((row-col), 2.0) == 1.0) {
+				return shading(d, r, normal, vec4(0, 0, 0, 80));
+			} else {
+				return shading(d, r, normal, vec4(.8, .8, .8, 80));
+			}
+		}
+		return shading(d, r, normal, vec4(.1, .1, .1, 80));
 	}
 
 	void reflectUpdate(inout vec4 e, inout vec4 d, vec4 r, vec3 normal) {
@@ -174,7 +165,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 		if (cosAlpha < 0.0) {
 			cosAlpha = -cosAlpha; normal = -normal; refraIndex = 1.0/refraIndex;
 		}
-		e = r - vec4(normal*0.01, 0);
+		e = r - vec4(normal*0.001, 0);
 		float sinAlphaSqr = 1.0-(pow(cosAlpha, 2.0));
 		float cosBetaSqr = 1.0-(sinAlphaSqr/pow(refraIndex, 2.0));
 		float cosBeta;
@@ -193,7 +184,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 		//contribution RGB from each level of raytracing
 		vec3 contrib = vec3(1, 1, 1);
 
-		for (int i=0;i<10;i++) {
+		for (int i=0;i<3;i++) {
 			if (findBestHit(e, d, t, brdf, A)) {
 					vec4 r = e + d*t;
 					vec3 normal = normalize((A*r + r*A).xyz);
@@ -219,6 +210,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 					}
 			} else {
 					gl_FragColor += texture2D(probeTexture, findSkyTexture(d)) * vec4(contrib, 1);
+					// gl_FragColor += vec4(0.0, 0.0, 0.18, 1.0);
 					return;
 			}
 		}

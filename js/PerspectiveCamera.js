@@ -15,7 +15,7 @@ var PerspectiveCamera = function()
   this.nearPlane = 0.1;
   this.farPlane = 1000.0;
 
-  this.speed = 1.5;
+  this.speed = 2.0;
 
   this.isDragging = false;
   this.mouseDelta = new Vec2(0.0, 0.0);

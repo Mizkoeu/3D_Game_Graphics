@@ -20,6 +20,17 @@ ClippedQuadric.prototype.setUnitSphere = function(){
                             		0, 0, 0, -1);
 };
 
+ClippedQuadric.prototype.setBishopSphere = function(){
+  this.surfaceCoeffMatrix.set(	1, 0, 0, 0,
+                            		0, 1, 0, 0,
+                            		0, 0, 1, 0,
+                            		0, 0, 0, -1);
+  this.clipperCoeffMatrix.set(	-1, 0, 0, 0,
+                            		0, -1, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, 0, 1);
+};
+
 ClippedQuadric.prototype.setUnitCylinder = function() {
   this.surfaceCoeffMatrix.set(	1, 0, 0, 0,
                             		0, 0, 0, 0,
