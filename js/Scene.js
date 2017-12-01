@@ -62,8 +62,8 @@ let Scene = function(gl) {
   this.lightSource.mainDir = new Vec4Array(3);
   this.lightSource.lightPos.at(0).set(-1, 1, -1, 0);
   this.lightSource.lightPowerDensity.at(0).set(4, 4, 4, 0);
-  this.lightSource.lightPowerDensity.at(1).set(15, 0, 0, 0);
-  this.lightSource.lightPowerDensity.at(2).set(0, 0, 15, 0);
+  this.lightSource.lightPowerDensity.at(1).set(2, 2, 15, 0);
+  this.lightSource.lightPowerDensity.at(2).set(3, 6, 13, 0);
   //this.lightSource.mainDir.at(0).set(-1, -1, -1, 0);
   this.lightSource.mainDir.at(1).set(0, -1, 0, 1);
   this.lightSource.mainDir.at(2).set(0, -1, 0, 1);
@@ -75,14 +75,14 @@ let Scene = function(gl) {
   //Create Skydome
   this.sky = new GameObject(new Mesh(this.skyGeometry, this.skyMaterial));
   this.chessPieces = [];
-  var queenPiece1 = new Chess(Chess.types.QUEEN, 1, 1, 4);
-  var queenPiece2 = new Chess(Chess.types.QUEEN, 2, 8, 4);
-  this.chessPieces.push(queenPiece1);
-  this.chessPieces.push(queenPiece2);
   var kingPiece = new Chess(Chess.types.KING, 1, 1, 5);
   var kingPiece2 = new Chess(Chess.types.KING, 2, 8, 5);
-  this.chessPieces.push(kingPiece);
   this.chessPieces.push(kingPiece2);
+  this.chessPieces.push(kingPiece);
+  var queenPiece1 = new Chess(Chess.types.QUEEN, 1, 1, 4);
+  var queenPiece2 = new Chess(Chess.types.QUEEN, 2, 8, 4);
+  this.chessPieces.push(queenPiece2);
+  this.chessPieces.push(queenPiece1);
   this.chessPieces.push(new Chess(Chess.types.ROOK, 1, 1, 8));
   this.chessPieces.push(new Chess(Chess.types.ROOK, 1, 1, 1));
   this.chessPieces.push(new Chess(Chess.types.ROOK, 2, 8, 8));
@@ -100,13 +100,13 @@ let Scene = function(gl) {
   this.sky.materialSet.push(new Vec4(.15, .15, .15, 200));
 
   //initialize light positions
-  this.lightSource.lightPos.at(1).set((4.5-queenPiece1.row)*Chess.cellWidth, 1.2, (4.5-queenPiece1.col)*Chess.cellWidth, 1);
-  this.lightSource.lightPos.at(2).set((4.5-queenPiece2.row)*Chess.cellWidth, 1.2, (4.5-queenPiece2.col)*Chess.cellWidth, 1);
+  this.lightSource.lightPos.at(2).set((4.5-queenPiece1.col)*Chess.cellWidth, 1.2, (4.5-queenPiece1.row)*Chess.cellWidth, 1);
+  this.lightSource.lightPos.at(1).set((4.5-queenPiece2.col)*Chess.cellWidth, 1.2, (4.5-queenPiece2.row)*Chess.cellWidth, 1);
 
-  for (var i=1;i<=8;i++) {
-    this.chessPieces.push(new Chess(Chess.types.PAWN, 1, 2, i));
-    this.chessPieces.push(new Chess(Chess.types.PAWN, 2, 7, i));
-  }
+  // for (var i=1;i<=8;i++) {
+  //   this.chessPieces.push(new Chess(Chess.types.PAWN, 1, 2, i));
+  //   this.chessPieces.push(new Chess(Chess.types.PAWN, 2, 7, i));
+  // }
   // let theSky = this.sky;
   // this.chessPieces.forEach(function (o) {
   //   o.quadrics.forEach(function (shape){
@@ -123,10 +123,6 @@ let Scene = function(gl) {
       this.sky.materialSet.push(piece.materials[j]);
     }
   }
-
-  // this.sky.materialSet.push(new Vec4(.95, .95, .95, 300));
-  // this.gameObjects.push(this.sky);
-
 };
 
 Scene.prototype.createObject = function(gl, name, texture, mesh) {

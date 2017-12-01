@@ -11,7 +11,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 	uniform vec3 cameraPos;
 	uniform mat4 quadrics[200];
 	uniform vec4 brdfs[100];
-	const int numShapes = 85;
+	const int numShapes = 50;
 	const int numLights = 1;
 	const bool shadow = true;
 
@@ -277,9 +277,10 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 						//Compute R_0 first;
 						vec3 u = vec3(.21, .485, 1.29);
 						vec3 k = vec3(3.13, 2.23, 1.76);
-						float cosAlpha = dot(d.xyz, normal);
-						float R_0 = ((u-vec3(1,1,1))*(u-vec3(1,1,1)) + k*k)/((u+vec3(1,1,1))*(u+vec3(1,1,1)) + k*k);
-						float R = R_0 + (1-R_0)*pow((1-cosAlpha),5);
+						vec3 unitVec = vec3(1,1,1);
+						float cosAlpha = dot(-d.xyz, normal);
+						vec3 R_0 = ((u-unitVec)*(u-unitVec) + k*k)/((u+unitVec)*(u+unitVec) + k*k);
+						vec3 R = R_0 + (unitVec-R_0)*pow((1.0-cosAlpha),5.0);
 						//Then compute R - Reflectance, which is contribution.
 						reflectUpdate(e, d, r, normal);
 						contrib *= R;

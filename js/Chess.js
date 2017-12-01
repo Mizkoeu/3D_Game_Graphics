@@ -71,10 +71,14 @@ Chess.prototype.makeKing = function(side) {
     this.materials.push(new Vec4(.5, .2, .1, 180));
     this.materials.push(new Vec4(.6, .15, .18, 160));
   } else {
-    this.materials.push(new Vec4(.25, .3, .8, 140));
-    this.materials.push(new Vec4(.25, .3, .8, 140));
-    this.materials.push(new Vec4(.1, .2, .5, 180));
-    this.materials.push(new Vec4(.3, .15, .75, 160));
+    // this.materials.push(new Vec4(.25, .3, .8, 140));
+    // this.materials.push(new Vec4(.25, .3, .8, 140));
+    // this.materials.push(new Vec4(.1, .2, .5, 180));
+    // this.materials.push(new Vec4(.3, .15, .75, 160));
+    this.materials.push(new Vec4(1, 1, 1, 300));
+    this.materials.push(new Vec4(1, 1, 1, 300));
+    this.materials.push(new Vec4(1, 1, 1, 300));
+    this.materials.push(new Vec4(1, 1, 1, 300));
   }
 };
 
