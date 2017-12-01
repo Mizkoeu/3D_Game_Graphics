@@ -11,9 +11,14 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 	uniform vec3 cameraPos;
 	uniform mat4 quadrics[200];
 	uniform vec4 brdfs[100];
-	const int numShapes = 65;
+	const int numShapes = 85;
 	const int numLights = 1;
 	const bool shadow = true;
+
+	mat4 cut = mat4(0, 0, 0, 0,
+									0, 1, 0, 0,
+									0, 0, 0, 0,
+									0, 3, 0, 2.21);
 
 	float intersectClippedQuadric(mat4 A, mat4 B, vec4 e, vec4 d) {
 		float a = dot(d * A, d);
@@ -48,6 +53,45 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 		}
 	}
 
+	float intersectThreeQuadric(mat4 A, mat4 B, mat4 C, vec4 e, vec4 d) {
+		float a = dot(d * A, d);
+		float b = dot(d * A, e) + dot(e * A, d);
+		float c = dot(e * A, e);
+		float D = b*b-4.0*a*c;
+
+		float a2 = dot(d * B, d);
+		float b2 = dot(d * B, e) + dot(e * B, d);
+		float c2 = dot(e * B, e);
+
+		float a3 = dot(d * C, d);
+		float b3 = dot(d * C, e) + dot(e * C, d);
+		float c3 = dot(e * C, e);
+		//float D2 = b2*b2-4.0*a2*c2;
+
+		if (D < 0.0) {
+			return -1.0;
+		} else {
+		 float t1 = (-b+sqrt(D))/(2.0*a);
+		 float t2 = (-b-sqrt(D))/(2.0*a);
+		 float rBr1 = t1*t1*a2 + t1*b2 + c2;
+		 float rCr1 = t1*t1*a3 + t1*b3 + c3;
+		 float rBr2 = t2*t2*a2 + t2*b2 + c2;
+		 float rCr2 = t2*t2*a3 + t2*b3 + c3;
+
+		 if (rBr1 > 0.0 || rCr1 > 0.0) {
+		 	t1 = -1.0;
+		 }
+		 if (rBr2 > 0.0 || rCr2 > 0.0) {
+		 	t2 = -1.0;
+		 }
+		 if (t1 > 0.0 && (t1 < t2 || t2 < 0.0)) {
+			return t1;
+		 } else {
+		 	return t2;
+		 }
+		}
+	}
+
 	float findBetterHit(float t1, float t2) {
 		if ((t1 < t2 || t2 == -1.0) && t1 > 0.0) {
 			return t1;
@@ -61,17 +105,38 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 			mat4 A = quadrics[i*2];
 			mat4 B = quadrics[i*2+1];
 			vec4 curBrdf = brdfs[i];
-			float t1 = intersectClippedQuadric(A, B, e, d);
-			float t2 = intersectClippedQuadric(B, A, e, d);
-			float curT = findBetterHit(findBetterHit(t1, t2), bestT);
-			if (curT != bestT) {
-				bestBrdf = curBrdf;
-				bestT = curT;
-				if (curT == t1) {
-					bestA = A;
+			float t1, t2, curT;
+			if (brdfs[i].w == -10.0) {
+				float t1 = intersectThreeQuadric(A, B, cut, e, d);
+				float t2 = intersectThreeQuadric(B, A, cut, e, d);
+				float t3 = intersectThreeQuadric(cut, B, A, e, d);
+				curT = findBetterHit(findBetterHit(findBetterHit(t1, t2), t3), bestT);
+				if (curT != bestT) {
+					bestBrdf = curBrdf;
+					bestT = curT;
+					if (curT == t1) {
+						bestA = A;
+					}
+					if (curT == t2) {
+						bestA = B;
+					}
+					if (curT == t3) {
+						bestA = cut;
+					}
 				}
-				if (curT == t2) {
-					bestA = B;
+			} else {
+				float t1 = intersectClippedQuadric(A, B, e, d);
+				float t2 = intersectClippedQuadric(B, A, e, d);
+				curT = findBetterHit(findBetterHit(t1, t2), bestT);
+				if (curT != bestT) {
+					bestBrdf = curBrdf;
+					bestT = curT;
+					if (curT == t1) {
+						bestA = A;
+					}
+					if (curT == t2) {
+						bestA = B;
+					}
 				}
 			}
 		}
@@ -80,10 +145,15 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 
 	bool getBestHit(vec4 e, vec4 d) {
 		float bestT = -1.0;
+		float curT;
 		for(int i=0;i<numShapes;i++) {
 			mat4 A = quadrics[i*2];
 			mat4 B = quadrics[i*2+1];
-			float curT = intersectClippedQuadric(A, B, e, d);
+			if (brdfs[i].w == -10.0) {
+				 curT = intersectThreeQuadric(A, B, cut, e, d);
+			} else {
+				 curT = intersectClippedQuadric(A, B, e, d);
+			}
 			if ((curT < bestT || bestT == -1.0) && curT > 0.0) {
 				return true;
 			}
@@ -101,7 +171,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 			vec3 lightDir = lightPos[i].xyz - lightPos[i].w * r.xyz;
 
 			// NOTE: For diff shadow based on where the light source is
-			// findBestHit(r, vec4(normalize(lightDir), 0.0), shadowT, bestBrdf, A);
+			// findBestHit(r+vec4(normal*.001, 0), vec4(normalize(lightDir), 0.0), shadowT, bestBrdf, A);
 			// if (shadowT > 0.0 && shadowT*lightPos[i].w < length(lightDir)) {
 
 			// NOTE: for general directional lighting like the sun.
@@ -122,7 +192,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 				vec4 diffuse = vec4 (powerDensity.xyz/(pow(length(lightDir), 2.0)) *
 															brdf.xyz * cosTheta, 1);
 				finalColor += diffuse;
-				if (brdf.w != 0.0 && brdf.w  < 200.0) {
+				if (brdf.w > 0.0 && brdf.w  < 200.0) {
 					vec4 specular = vec4 (powerDensity.xyz/(pow(length(lightDir), 2.0)) *
 													brdf.xyz * (pow(deviation, brdf.w)), 1);
 					finalColor += specular;
@@ -184,7 +254,7 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 		//contribution RGB from each level of raytracing
 		vec3 contrib = vec3(1, 1, 1);
 
-		for (int i=0;i<3;i++) {
+		for (int i=0;i<5;i++) {
 			if (findBestHit(e, d, t, brdf, A)) {
 					vec4 r = e + d*t;
 					vec3 normal = normalize((A*r + r*A).xyz);
@@ -202,6 +272,17 @@ Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
 					//Smooth materials
 						reflectUpdate(e, d, r, normal);
 						contrib *= brdf.xyz;
+					} else if (brdf.w == 300.0){
+					//NOTE: Gold with Fresnel Effect!!!!
+						//Compute R_0 first;
+						vec3 u = vec3(.21, .485, 1.29);
+						vec3 k = vec3(3.13, 2.23, 1.76);
+						float cosAlpha = dot(d.xyz, normal);
+						float R_0 = ((u-vec3(1,1,1))*(u-vec3(1,1,1)) + k*k)/((u+vec3(1,1,1))*(u+vec3(1,1,1)) + k*k);
+						float R = R_0 + (1-R_0)*pow((1-cosAlpha),5);
+						//Then compute R - Reflectance, which is contribution.
+						reflectUpdate(e, d, r, normal);
+						contrib *= R;
 					} else {
 					//Dielectric: Refrections...
 						//float refraIndex = brdf.w - 300.0;

@@ -83,7 +83,15 @@ let Scene = function(gl) {
   var kingPiece2 = new Chess(Chess.types.KING, 2, 8, 5);
   this.chessPieces.push(kingPiece);
   this.chessPieces.push(kingPiece2);
-  this.chessPieces.push(new Chess(Chess.types.BISHOP, 1, 4, 4));
+  this.chessPieces.push(new Chess(Chess.types.ROOK, 1, 1, 8));
+  this.chessPieces.push(new Chess(Chess.types.ROOK, 1, 1, 1));
+  this.chessPieces.push(new Chess(Chess.types.ROOK, 2, 8, 8));
+  this.chessPieces.push(new Chess(Chess.types.ROOK, 2, 8, 1));
+  this.chessPieces.push(new Chess(Chess.types.BISHOP, 1, 1, 3));
+  this.chessPieces.push(new Chess(Chess.types.BISHOP, 1, 1, 6));
+  this.chessPieces.push(new Chess(Chess.types.BISHOP, 2, 8, 3));
+  this.chessPieces.push(new Chess(Chess.types.BISHOP, 2, 8, 6));
+
 
   var chessBoard = new ClippedQuadric();
   chessBoard.setUnitCylinder();
@@ -95,11 +103,11 @@ let Scene = function(gl) {
   this.lightSource.lightPos.at(1).set((4.5-queenPiece1.row)*Chess.cellWidth, 1.2, (4.5-queenPiece1.col)*Chess.cellWidth, 1);
   this.lightSource.lightPos.at(2).set((4.5-queenPiece2.row)*Chess.cellWidth, 1.2, (4.5-queenPiece2.col)*Chess.cellWidth, 1);
 
-  // for (var i=1;i<=8;i++) {
-  //   this.chessPieces.push(new Chess(Chess.types.PAWN, 1, 2, i));
-  //   this.chessPieces.push(new Chess(Chess.types.PAWN, 2, 7, i));
-  // }
-  let theSky = this.sky;
+  for (var i=1;i<=8;i++) {
+    this.chessPieces.push(new Chess(Chess.types.PAWN, 1, 2, i));
+    this.chessPieces.push(new Chess(Chess.types.PAWN, 2, 7, i));
+  }
+  // let theSky = this.sky;
   // this.chessPieces.forEach(function (o) {
   //   o.quadrics.forEach(function (shape){
   //     theSky.quadricSet.push(shape);

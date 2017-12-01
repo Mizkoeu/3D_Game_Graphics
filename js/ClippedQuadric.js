@@ -42,6 +42,17 @@ ClippedQuadric.prototype.setUnitCylinder = function() {
                             		0, 0, 0, -1);
 };
 
+ClippedQuadric.prototype.setHollowCylinder = function() {
+  this.surfaceCoeffMatrix.set(	1, 0, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, 1, 0,
+                            		0, 0, 0, -1);
+  this.clipperCoeffMatrix.set(	-2, 0, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, -2, 0,
+                            		0, 0, 0, 1);
+};
+
 ClippedQuadric.prototype.setParaboloid = function() {
   this.surfaceCoeffMatrix.set(	1, 0, 0, 0,
                             		0, 0, 0, 0,
