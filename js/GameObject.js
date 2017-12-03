@@ -1,8 +1,5 @@
 "use strict"
 let GameObject = function(mesh) {
-  this.quadricSet = [];
-  this.materialSet = [];
-
   this.mesh = mesh;
   this.isGround = false;
 
@@ -46,17 +43,15 @@ GameObject.prototype.draw = function(camera, lightSource){
   Material.modelViewProjMatrix.set(this.modelMatrix).mul(camera.viewProjMatrix);
   Material.modelMatrix.set(this.modelMatrix);
   Material.modelMatrixInverse.set(this.modelMatrix).invert();
+  // for (var i=0;i<lightSource.length;i++) {
+  //   this.lightPos.push(lightSource[i].lightPos);
+  //   this.lightPowerDensity.push(lightSource[i].lightPowerDensity);
+  // }
+
   Material.lightPos.set(lightSource.lightPos);
   Material.lightPowerDensity.set(lightSource.lightPowerDensity);
   Material.mainDir.set(lightSource.mainDir);
   Material.cameraPos.set(camera.position);
-
-  for (var i=0;i<this.quadricSet.length;i++){
-    Material.quadrics.at(i*2).set(this.quadricSet[i].surfaceCoeffMatrix);
-    Material.quadrics.at(i*2+1).set(this.quadricSet[i].clipperCoeffMatrix);
-    Material.brdfs.at(i).set(this.materialSet[i]);
-  };
-
   this.mesh.draw();
 };
 

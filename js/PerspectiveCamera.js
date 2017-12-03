@@ -1,7 +1,7 @@
 "use strict"
 var PerspectiveCamera = function()
 {
-  this.position = new Vec3(0.0, -.40, -10.0);
+  this.position = new Vec3(0.0, 0.8, -5.0);
   this.ahead = new Vec3(0.0, 0.0, 1.0);
   this.right = new Vec3(-1.0, 0.0, 0.0);
   this.up = new Vec3(0.0, 1.0, 0.0);
@@ -15,7 +15,7 @@ var PerspectiveCamera = function()
   this.nearPlane = 0.1;
   this.farPlane = 1000.0;
 
-  this.speed = 2.0;
+  this.speed = 1.5;
 
   this.isDragging = false;
   this.mouseDelta = new Vec2(0.0, 0.0);

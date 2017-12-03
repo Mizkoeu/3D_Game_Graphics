@@ -33,88 +33,154 @@ let Scene = function(gl) {
   this.skyGeometry = new QuadGeometry(gl);
 
   //materials
-  // this.mirrorMaterial = new Material(gl, this.mirrorProgram);
-  // this.mirrorTexture = new Texture2D(gl, "../probe.png");
-  // this.mirrorMaterial.probeTexture.set(this.mirrorTexture.glTexture);
-  // this.shadowMaterial = new Material(gl, this.shadowProgram);
-  // this.shinyMaterial = new Material(gl, this.shinyProgram);
-  // this.woodMaterial = new Material(gl, this.woodProgram);
-  // this.bodyMaterial = new Material(gl, this.solidProgram);
-  // this.eyeMaterial = new Material(gl, this.solidProgram);
-  // this.landMaterial = new Material(gl, this.solidProgram);
-  this.skyTexture = new Texture2D(gl, "./city.jpg");
+  this.mirrorMaterial = new Material(gl, this.mirrorProgram);
+  this.mirrorTexture = new Texture2D(gl, "./probe.png");
+  this.skyTexture = new Texture2D(gl, "./sky.jpg");
+  this.mirrorMaterial.probeTexture.set(this.mirrorTexture.glTexture);
+  this.shadowMaterial = new Material(gl, this.shadowProgram);
+  this.shinyMaterial = new Material(gl, this.shinyProgram);
+  this.woodMaterial = new Material(gl, this.woodProgram);
+  this.bodyMaterial = new Material(gl, this.solidProgram);
+  this.eyeMaterial = new Material(gl, this.solidProgram);
+  this.landMaterial = new Material(gl, this.solidProgram);
   this.skyMaterial = new Material(gl, this.skyProgram);
-  this.skyMaterial.probeTexture.set(this.skyTexture.glTexture);
   //texture binding
-  // this.texture = new Texture2D(gl, "./Slowpoke/YadonDh.png");
-  // this.texture2 = new Texture2D(gl, "./Slowpoke/YadonEyeDh.png");
-  // //this.shadowTexture = new Texture2D(gl, "./shadow.png");
-  // this.landTexture = new Texture2D(gl, "./grass.png");
-  // //this.shinyMaterial.colorTexture.set(this.shadowTexture.glTexture);
-  // this.bodyMaterial.colorTexture.set(this.texture.glTexture);
-  // this.eyeMaterial.colorTexture.set(this.texture2.glTexture);
-  // this.landMaterial.colorTexture.set(this.landTexture.glTexture);
-
-  //Array of Light sources
-  this.lightSource = new lightSource();
-  this.lightSource.lightPos = new Vec4Array(3);
-  this.lightSource.lightPowerDensity = new Vec4Array(3);
-  this.lightSource.mainDir = new Vec4Array(3);
-  this.lightSource.lightPos.at(0).set(-1, 1, -1, 0);
-  this.lightSource.lightPowerDensity.at(0).set(4, 4, 4, 0);
-  this.lightSource.lightPowerDensity.at(1).set(2, 2, 15, 0);
-  this.lightSource.lightPowerDensity.at(2).set(3, 6, 13, 0);
-  //this.lightSource.mainDir.at(0).set(-1, -1, -1, 0);
-  this.lightSource.mainDir.at(1).set(0, -1, 0, 1);
-  this.lightSource.mainDir.at(2).set(0, -1, 0, 1);
-
+  this.texture = new Texture2D(gl, "./Slowpoke/YadonDh.png");
+  this.texture2 = new Texture2D(gl, "./Slowpoke/YadonEyeDh.png");
+  //this.shadowTexture = new Texture2D(gl, "./shadow.png");
+  this.landTexture = new Texture2D(gl, "./grass.png");
+  //this.shinyMaterial.colorTexture.set(this.shadowTexture.glTexture);
+  this.bodyMaterial.colorTexture.set(this.texture.glTexture);
+  this.eyeMaterial.colorTexture.set(this.texture2.glTexture);
+  this.landMaterial.colorTexture.set(this.landTexture.glTexture);
+  this.skyMaterial.probeTexture.set(this.skyTexture.glTexture);
   //Create a camera
   this.camera = new PerspectiveCamera();
 
-  // this.gameObjects = [];
+  //Array of Light sources
+  this.lightSource = new lightSource();
+  this.lightSource.lightPos = new Vec4Array(2);
+  this.lightSource.lightPowerDensity = new Vec4Array(2);
+  this.lightSource.mainDir = new Vec4Array(2);
+  this.lightSource.lightPos.at(0).set(-1, 1, -1, 0);
+  this.lightSource.lightPowerDensity.at(0).set(4, 4, 4, 0);
+  //this.lightSource.lightPos.at(1).set(-.2, 10, 5, 1);
+  this.lightSource.lightPowerDensity.at(1).set(5, 5, 5, 0);
+  this.lightSource.mainDir.at(0).set(-1, -1, -1, 0);
+  //this.lightSource.mainDir.at(1).set(0, -1, 5, 0);
+  this.spotLight;
+
+  console.log(this.lightSource.lightPos.at(0));
+  console.log(this.lightSource.lightPowerDensity.at(0));
+  //this.lightSource.push(new Vec4Array[(new Vec4(1, 1.5, 1, 1))], new Vec4Array[(new Vec4(0, -1, -1, 0))]);
+
+  //this.bodyMaterial.lightPos.set(this.lightSource);
+
+  this.gameObjects = [];
   //Create Skydome
   this.sky = new GameObject(new Mesh(this.skyGeometry, this.skyMaterial));
-  this.chessPieces = [];
-  var kingPiece = new Chess(Chess.types.KING, 1, 1, 5);
-  var kingPiece2 = new Chess(Chess.types.KING, 2, 8, 5);
-  this.chessPieces.push(kingPiece2);
-  this.chessPieces.push(kingPiece);
-  var queenPiece1 = new Chess(Chess.types.QUEEN, 1, 1, 4);
-  var queenPiece2 = new Chess(Chess.types.QUEEN, 2, 8, 4);
-  this.chessPieces.push(queenPiece2);
-  this.chessPieces.push(queenPiece1);
-  this.chessPieces.push(new Chess(Chess.types.ROOK, 1, 1, 8));
-  this.chessPieces.push(new Chess(Chess.types.ROOK, 1, 1, 1));
-  this.chessPieces.push(new Chess(Chess.types.ROOK, 2, 8, 8));
-  this.chessPieces.push(new Chess(Chess.types.ROOK, 2, 8, 1));
-  this.chessPieces.push(new Chess(Chess.types.BISHOP, 1, 1, 3));
-  this.chessPieces.push(new Chess(Chess.types.BISHOP, 1, 1, 6));
-  this.chessPieces.push(new Chess(Chess.types.BISHOP, 2, 8, 3));
-  this.chessPieces.push(new Chess(Chess.types.BISHOP, 2, 8, 6));
+  //this.sky.pitch = Math.PI/2.0;
+  this.gameObjects.push(this.sky);
 
+  //Create the land Scene
+  this.land = new GameObject(new Mesh(this.quadGeometry, this.landMaterial));
+  this.land.position = new Vec3(0.8, -.18, -1.5);
+  this.land.scale = 10;
+  this.land.isGround = true;
+  this.gameObjects.push(this.land);
 
-  var chessBoard = new ClippedQuadric();
-  chessBoard.setInfinitePlane();
-  // chessBoard.setUnitCylinder();
-  chessBoard.transform((new Mat4()).scale(7, .15, 7).translate(0, -2.5, 0));
-  this.sky.quadricSet.push(chessBoard);
-  this.sky.materialSet.push(new Vec4(.3, .3, .3, 200));
+  //Create object array
+  this.mesh = new Mesh(this.textureGeometry, this.material);
+  this.renderObject = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", [this.mirrorMaterial, this.eyeMaterial]));
+  this.renderObject.position = new Vec3(0.8, -.18, -1.5);
+  //this.renderObject.orientation = .2;
+  this.renderObject.scale = .06;
+  this.gameObjects.push(this.renderObject);
 
-  //initialize light positions
-  this.lightSource.lightPos.at(2).set((4.5-queenPiece1.col)*Chess.cellWidth, 1.2, (4.5-queenPiece1.row)*Chess.cellWidth, 1);
-  this.lightSource.lightPos.at(1).set((4.5-queenPiece2.col)*Chess.cellWidth, 1.2, (4.5-queenPiece2.row)*Chess.cellWidth, 1);
+  this.carTexture = new Texture2D(gl, "./json/chevy/chevy.png");
+  this.carMat = new Material(gl, this.shinyProgram);
+  this.carMat.colorTexture.set(this.carTexture.glTexture);
+  this.car = new GameObject(new MultiMesh(gl, "./json/chevy/chassis.json", [this.carMat]));
+  this.car.position = new Vec3(0.0, .1, -1.5);
+  this.car.scale = .03;
+  this.car.acceleration = new Vec2(.02, -.08);
+  this.gameObjects.push(this.car);
 
-  for (var i=1;i<=8;i++) {
-    this.chessPieces.push(new Chess(Chess.types.PAWN, 1, 2, i));
-    this.chessPieces.push(new Chess(Chess.types.PAWN, 2, 7, i));
+  //wheels
+  this.wheelTexture = new Texture2D(gl, "./json/chevy/chevy.png");
+  this.wheelMat = new Material(gl, this.solidProgram);
+  this.wheelMat.colorTexture.set(this.wheelTexture.glTexture);
+  var wheel1 = new GameObject(new MultiMesh(gl, "./json/chevy/wheel.json", [this.wheelMat]));
+  var wheel2 = new GameObject(new MultiMesh(gl, "./json/chevy/wheel.json", [this.wheelMat]));
+  var wheel3 = new GameObject(new MultiMesh(gl, "./json/chevy/wheel.json", [this.wheelMat]));
+  var wheel4 = new GameObject(new MultiMesh(gl, "./json/chevy/wheel.json", [this.wheelMat]));
+  wheel1.position = new Vec3(-7, -3, -11);
+  wheel2.position = new Vec3(7, -3, -11);
+  wheel3.position = new Vec3(-7, -3, 14);
+  wheel4.position = new Vec3(7, -3, 14);
+  this.wheels = [];
+  this.wheels.push(wheel1, wheel2, wheel3, wheel4);
+  let theScene = this;
+  this.wheels.forEach(function(o) {
+    o.parent = theScene.car;
+    theScene.gameObjects.push(o);
+  })
+
+  //Rotor
+  this.rotorTexture = new Texture2D(gl, "./json/heli/heli.png");
+  this.rotorMat = new Material(gl, this.solidProgram);
+  this.rotorMat.colorTexture.set(this.rotorTexture.glTexture);
+  this.rotor = new GameObject(new MultiMesh(gl, "./json/heli/mainrotor.json", [this.rotorMat, this.rotorMat]));
+  this.rotor.position = new Vec3(0, 7, 0);
+  this.rotor.parent = this.car;
+  this.gameObjects.push(this.rotor);
+
+  this.creatures = [];
+  for (var i=0;i<30;i++) {
+    if (Math.random() < .5) {
+      var newPoke = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", [this.woodMaterial, this.eyeMaterial]));
+    } else { var newPoke = new GameObject(new MultiMesh(gl, "./Slowpoke/Slowpoke.json", [this.bodyMaterial, this.eyeMaterial]));}
+    newPoke.position = new Vec3(Math.random() * 50 - 25, -.17, Math.random() * 50 - 25);
+    newPoke.scale = .06 + .02 * Math.random();
+    newPoke.orientation = Math.random() * Math.PI * 2;
+    var rotateMat = (new Mat4()).rotate(newPoke.orientation, new Vec3(0, 1, 0));
+    newPoke.faceDirection.set((new Vec4(newPoke.faceDirection, 0)).mul(rotateMat));
+    this.creatures.push(newPoke);
+    this.gameObjects.push(newPoke);
   }
 
-  for (var i=0;i<this.chessPieces.length;i++) {
-    let piece = this.chessPieces[i];
-    for (var j=0;j<piece.quadrics.length;j++) {
-      this.sky.quadricSet.push(piece.quadrics[j]);
-      this.sky.materialSet.push(piece.materials[j]);
-    }
+
+  //Ballons
+  this.balloonTexture = new Texture2D(gl, "./json/balloon.png");
+  this.balloonMat = new Material(gl, this.shinyProgram);
+  this.balloonMat.colorTexture.set(this.balloonTexture.glTexture);
+  this.balloons = [];
+  for (var i=0;i<30;i++) {
+    var balloon = new GameObject(new MultiMesh(gl, "./json/balloon.json", [this.balloonMat]));
+    balloon.position = new Vec3(Math.random() * 70 - 35, 3, Math.random() * 70 - 35);
+    balloon.scale = .04 + .01 * Math.random();
+    this.balloons.push(balloon);
+    this.gameObjects.push(balloon);
+  }
+
+  //Thunderbolt
+  // this.createObject(gl, "heli", "./json/heli/heliait.png", "./json/heli/heli1.json");
+  // //this.createObject(gl, "heliRotor", "./json/heli/heli.png", "./json/heli/mainrotor.json");
+  // this.heli.orientation = -Math.PI/2.0;
+  // this.heli.position = new Vec3(0, 1, 0);
+  //this.heliRotor.parent = this.heli;
+
+  //Trees
+  this.treeTexture = new Texture2D(gl, "./json/tree.png");
+  this.treeMat = new Material(gl, this.shinyProgram);
+  this.treeMat.colorTexture.set(this.treeTexture.glTexture);
+  this.trees = [];
+  for (var i=0;i<100;i++) {
+    var tree = new GameObject(new MultiMesh(gl, "./json/tree.json", [this.treeMat]));
+    tree.position = new Vec3(Math.random() * 80 - 40, -.1, Math.random() * 80 - 40);
+    tree.orientation = Math.random() * Math.PI * 2;
+    tree.scale = .025 + .01 * Math.random();
+    this.gameObjects.push(tree);
   }
 };
 
@@ -145,47 +211,156 @@ Scene.prototype.update = function(gl, keysPressed) {
 
   this.solidProgram.commit();
   Material.rayDirMatrix.set(this.camera.rayDirMatrix);
-  //move camera based on hotkeys
-  this.camera.move(dt, keysPressed);
 
-  if (keysPressed.UP === true) {
-    this.chessPieces[0].transform((new Mat4()).translate(0, 0, dt));
-    this.lightSource.lightPos.at(1).add(0, 0, dt, 0);
+  //move Slowpoke
+  var rotateMat = (new Mat4()).rotate(.1, new Vec3(0, 1, 0));//.rotate(.1, new Vec3(1, 0, 0));
+  var rotateBack = (new Mat4()).rotate(-.1, new Vec3(0, 1, 0));
+  this.renderObject.faceDirection.set((new Vec4(this.renderObject.faceDirection, 0)).mul(rotateMat));
+  this.renderObject.position.add(this.renderObject.faceDirection.times(1.0));
+  this.renderObject.orientation += .1;
+
+  for (var i=0; i<10; i++) {
+    var o = this.creatures[i];
+    if (i%2 === 0) {
+      o.faceDirection.set((new Vec4(o.faceDirection, 0)).mul(rotateMat));
+      o.orientation += .1;
+      o.position.add(o.faceDirection.times(3.2));
+    } else {
+      o.faceDirection.set((new Vec4(o.faceDirection, 0)).mul(rotateBack));
+      o.orientation -= .1;
+      o.position.add(o.faceDirection.times(2.2));
+    }
+
   }
-  if (keysPressed.DOWN === true) {
-    this.chessPieces[0].transform((new Mat4()).translate(0, 0, -dt));
-    this.lightSource.lightPos.at(1).add(0, 0, -dt, 0);
+  //this.renderObject.pitch -= .1;
+  //console.log(this.renderObject.faceDirection);
+  //this.renderObject.tilt += .1;
+  // this.renderObject.position.x = Math.sin(timeAtThisFrame/350.0) * .8 + .6;
+  // this.renderObject.tilt = Math.cos(timeAtThisFrame/350.0) * .8;
+  // //this.renderObject.position.y = Math.cos(timeAtThisFrame/250.0) * 1.2 + 1.33;
+  // //this.renderObject.pitch = - Math.sin(timeAtThisFrame/250.0) * 1.2;
+  // this.renderObject.position.z = Math.cos(timeAtThisFrame/450.0) * 1.8 - 1.2;
+  // this.renderObject.orientation = - Math.sin(timeAtThisFrame/250.0) * 1.2;
+
+  // this.heli.orientation += .05;
+  // this.heli.position.x = Math.sin(timeAtThisFrame/450.0) * 5 + .6;
+  // this.heli.position.z = Math.cos(timeAtThisFrame/450.0) * 5 - 1.2;
+
+  for (var i=0;i<this.balloons.length;i++) {
+    this.balloons[i].position.y = Math.cos(timeAtThisFrame/300.0 + i) * .2 + 1.2;
+  }
+
+  //objects in the scene move according to hotkeys
+  let theScene = this;
+  let front = this.car.faceDirection;
+  this.rotor.orientation += 2 * dt;
+  var dx = new Vec3(0, 0, 0);
+  var elevation = new Vec3(0, 0, 0);
+
+  if (keysPressed.SPACE === true) {
+    this.rotor.orientation += 15 * dt;
+    this.car.speed.y = 1.8
+    this.car.pitch -= .01;
+    if (this.car.pitch <= -.12) {
+      this.car.pitch = -.12;
+    }
+    elevation = new Vec3(0, this.car.speed.y * dt, 0);
+  } else {
+    if (this.car.pitch < 0.0) {
+      this.car.pitch +=.02;
+    } else {this.car.pitch = 0.0;}
+    if (this.car.position.y <= 0) {
+      this.car.speed.y = 0;
+      this.car.position.y = 0;
+    } else {
+      this.car.speed.y += this.car.acceleration.y;
+      elevation = new Vec3(0, this.car.speed.y * dt, 0);
+    }
+  }
+  if (keysPressed.UP === true) {
+    this.car.speed.x += this.car.acceleration.x;
+    this.wheels.forEach(function(wheel) {
+      wheel.rotation += .5;
+    });
+  } else if (keysPressed.DOWN === true) {
+    this.car.speed.x -= this.car.acceleration.x;
+    this.wheels.forEach(function(wheel) {
+      wheel.rotation -= .5;
+    });
+    //QUESTION!!!!! WHY can't I changed the front value without changing the faceDirection???
+  } else {
+    //decelerate if no key is pressed.
+    if (this.car.speed.x <= .03 && this.car.speed.x >= -.03) {
+      this.car.speed.x = 0;
+    } else if (this.car.speed.x > .03) {
+      this.car.speed.x -= .03;
+    } else {
+      this.car.speed.x += .03;
+    }
   }
   if (keysPressed.LEFT === true) {
-    this.chessPieces[0].transform((new Mat4()).translate(dt, 0, 0));
-    this.lightSource.lightPos.at(1).add(dt, 0, 0, 0);
+    this.car.orientation += .05;
+    this.car.tilt -= .01;
+    if (this.car.tilt <= -.1) {
+      this.car.tilt = -.1;
+    }
+    var rotateMat = (new Mat4()).rotate(.05, new Vec3(0, 1, 0));
+    this.car.faceDirection.set((new Vec4(front, 0)).mul(rotateMat));
+    console.log(this.car.faceDirection);
+  } else if (keysPressed.RIGHT === true) {
+    this.car.orientation -= .05;
+    this.car.tilt += .01;
+    if (this.car.tilt >= .1) {
+      this.car.tilt = .1;
+    }
+    var rotateMat = (new Mat4()).rotate(-.05, new Vec3(0, 1, 0));
+    this.car.faceDirection.set((new Vec4(front, 0)).mul(rotateMat));
+  } else {
+    if (this.car.tilt <= -.01) {
+      this.car.tilt += .01;
+    } else if (this.car.tilt >= .01) {
+      this.car.tilt -= .01;
+    } else {
+      this.car.tilt = 0.0;
+    }
   }
-  if (keysPressed.RIGHT === true) {
-    this.chessPieces[0].transform((new Mat4()).translate(-dt, 0, 0));
-    this.lightSource.lightPos.at(1).add(-dt, 0, 0, 0);
-  }
-  if (keysPressed.Z === true) {
-    this.chessPieces[0].transform((new Mat4()).translate(0, dt, 0));
-    this.lightSource.lightPos.at(1).add(0, dt, 0, 0);
-  }
-  if (keysPressed.X === true) {
-    this.chessPieces[0].transform((new Mat4()).translate(0, -dt, 0));
-    this.lightSource.lightPos.at(1).add(0, -dt, 0, 0);
-  }
+  dx = front.times(this.car.speed.x);
+  this.car.position.add(dx).add(elevation);
+  this.camera.position.add(dx).add(elevation);
 
   //Focus shot
   if (keysPressed.F === true) {
-    this.chessPieces[0].transform((new Mat4()).translate(0, dt, 0));
-    this.lightSource.lightPos.at(1).add(0, dt, 0, 0);
+    this.camera.track(this.car);
   }
 
   //Tracking shot
-  if (keysPressed.G === true) {
-    this.chessPieces[0].transform((new Mat4()).translate(0, -dt, 0));
-    this.lightSource.lightPos.at(1).add(0, -dt, 0, 0);
+  if (keysPressed.T === true) {
+    // let t = timeAtThisFrame/1000.0;
+    this.camera.path(Math.PI/100.0);
   }
 
-  this.sky.draw(this.camera, this.lightSource);
+  //move camera based on hotkeys
+  this.camera.move(dt, keysPressed);
+
+  this.spotLight = new Vec4(this.car.position.plus(new Vec3(0, .8, 0)).plus(front.times(1)), 1);
+  this.lightSource.mainDir.at(1).set(new Vec4(front.times(50).plus(new Vec3(0, -1, 0))), 1);
+  this.lightSource.lightPos.at(1).set(this.spotLight);
+  //drawing the shapes!!!
+  // this.renderObject.draw(this.camera, this.lightSource);
+  // this.newPoke.draw(this.camera, this.lightSource);
+  // this.car.draw(this.camera, this.lightSource);
+  // this.land.draw(this.camera, this.lightSource);
+  this.gameObjects.forEach(function(object) {
+    object.draw(theScene.camera, theScene.lightSource);
+    object.drawShadow(theScene.camera, theScene.lightSource, theScene.shadowMaterial);
+  });
+  // this.car.draw(this.camera, this.lightSource);
+  // this.car.drawShadow(this.camera, this.lightSource, this.shadowMaterial);
+
+  // this.gameObjects.forEach(function(object) {
+  //
+  //   object.drawShadow(theScene.camera, theScene.lightSource);
+  // });
 
 //The rest is from the first 2 weeks of practicals!
 
