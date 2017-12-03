@@ -9,6 +9,17 @@ let ClippedQuadric = function() {
   this.clipperCoeffMatrix = new Mat4();
 };
 
+ClippedQuadric.prototype.setInfinitePlane = function(){
+  this.surfaceCoeffMatrix.set(	0, 0, 0, 0,
+                            		0, 1, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, 0, -1);
+  this.clipperCoeffMatrix.set(	1, 0, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, 0, 0,
+                            		0, 0, 0, -1);
+};
+
 ClippedQuadric.prototype.setUnitSphere = function(){
   this.surfaceCoeffMatrix.set(	1, 0, 0, 0,
                             		0, 1, 0, 0,

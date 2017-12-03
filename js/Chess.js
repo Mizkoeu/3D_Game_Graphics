@@ -66,10 +66,10 @@ Chess.prototype.makeKing = function(side) {
   this.quadrics.push(top);
   this.quadrics.push(side);
   if (this.side === 1) {
-    this.materials.push(new Vec4(.7, .2, .15, 140));
-    this.materials.push(new Vec4(.7, .2, .15, 140));
-    this.materials.push(new Vec4(.5, .2, .1, 180));
-    this.materials.push(new Vec4(.6, .15, .18, 160));
+    this.materials.push(new Vec4(.7, .2, .15, 300));
+    this.materials.push(new Vec4(.7, .2, .15, 300));
+    this.materials.push(new Vec4(.5, .2, .1, 300));
+    this.materials.push(new Vec4(.6, .15, .18, 300));
   } else {
     // this.materials.push(new Vec4(.25, .3, .8, 140));
     // this.materials.push(new Vec4(.25, .3, .8, 140));
@@ -106,7 +106,7 @@ Chess.prototype.makeQueen = function(side) {
     // this.materials.push(new Vec4(.7, .2, .15, 140));
     // this.materials.push(new Vec4(.5, .2, .1, 180));
     // this.materials.push(new Vec4(.6, .15, .18, 160));
-    this.materials.push(new Vec4(1, 1, 1, 210));
+    this.materials.push(new Vec4(1, .5, .4, 110));
     this.materials.push(new Vec4(1, 1, 1, 210));
     this.materials.push(new Vec4(1, 1, 1, 210));
     this.materials.push(new Vec4(1, 1, 1, 210));
@@ -115,7 +115,7 @@ Chess.prototype.makeQueen = function(side) {
     // this.materials.push(new Vec4(.25, .3, .8, 140));
     // this.materials.push(new Vec4(.1, .2, .5, 180));
     // this.materials.push(new Vec4(.3, .15, .75, 160));
-    this.materials.push(new Vec4(1, 1, 1, 210));
+    this.materials.push(new Vec4(.4, .5, 1, 110));
     this.materials.push(new Vec4(1, 1, 1, 210));
     this.materials.push(new Vec4(1, 1, 1, 210));
     this.materials.push(new Vec4(1, 1, 1, 210));
@@ -155,10 +155,10 @@ Chess.prototype.makeBishop = function(side) {
     // this.materials.push(new Vec4(1, 1, 1, 210));
     // this.materials.push(new Vec4(1, 1, 1, 210));
   } else {
-    this.materials.push(new Vec4(.25, .3, .8, 140));
+    this.materials.push(new Vec4(.6, .6, 1, 340));
     // this.materials.push(new Vec4(.25, .3, .8, 140));
     // this.materials.push(new Vec4(.1, .2, .5, 180));
-    this.materials.push(new Vec4(.3, .15, .75, 160));
+    this.materials.push(new Vec4(.3, .15, .8, 160));
     this.materials.push(new Vec4(.3, .15, .78, 160));
   }
 };
@@ -181,10 +181,10 @@ Chess.prototype.makeRook = function(side) {
   this.quadrics.push(head);
   if (this.side === 1) {
     this.materials.push(new Vec4(.7, .2, .15, 110));
-    this.materials.push(new Vec4(.8, .15, .18, -10));
+    this.materials.push(new Vec4(.8, .15, .18, 10));
   } else {
     this.materials.push(new Vec4(.25, .3, .8, 110));
-    this.materials.push(new Vec4(.3, .15, .75, -10));
+    this.materials.push(new Vec4(.3, .15, .75, 10));
   }
 };
 

@@ -42,7 +42,7 @@ let Scene = function(gl) {
   // this.bodyMaterial = new Material(gl, this.solidProgram);
   // this.eyeMaterial = new Material(gl, this.solidProgram);
   // this.landMaterial = new Material(gl, this.solidProgram);
-  this.skyTexture = new Texture2D(gl, "./sky.jpg");
+  this.skyTexture = new Texture2D(gl, "./city.jpg");
   this.skyMaterial = new Material(gl, this.skyProgram);
   this.skyMaterial.probeTexture.set(this.skyTexture.glTexture);
   //texture binding
@@ -94,28 +94,21 @@ let Scene = function(gl) {
 
 
   var chessBoard = new ClippedQuadric();
-  chessBoard.setUnitCylinder();
-  chessBoard.transform((new Mat4()).scale(8, .1, 8).translate(0, -2.5, 0));
+  chessBoard.setInfinitePlane();
+  // chessBoard.setUnitCylinder();
+  chessBoard.transform((new Mat4()).scale(7, .15, 7).translate(0, -2.5, 0));
   this.sky.quadricSet.push(chessBoard);
-  this.sky.materialSet.push(new Vec4(.15, .15, .15, 200));
+  this.sky.materialSet.push(new Vec4(.3, .3, .3, 200));
 
   //initialize light positions
   this.lightSource.lightPos.at(2).set((4.5-queenPiece1.col)*Chess.cellWidth, 1.2, (4.5-queenPiece1.row)*Chess.cellWidth, 1);
   this.lightSource.lightPos.at(1).set((4.5-queenPiece2.col)*Chess.cellWidth, 1.2, (4.5-queenPiece2.row)*Chess.cellWidth, 1);
 
-  // for (var i=1;i<=8;i++) {
-  //   this.chessPieces.push(new Chess(Chess.types.PAWN, 1, 2, i));
-  //   this.chessPieces.push(new Chess(Chess.types.PAWN, 2, 7, i));
-  // }
-  // let theSky = this.sky;
-  // this.chessPieces.forEach(function (o) {
-  //   o.quadrics.forEach(function (shape){
-  //     theSky.quadricSet.push(shape);
-  //   });
-  //   o.materials.forEach(function (material){
-  //     theSky.materialSet.push(material);
-  //   });
-  // });
+  for (var i=1;i<=8;i++) {
+    this.chessPieces.push(new Chess(Chess.types.PAWN, 1, 2, i));
+    this.chessPieces.push(new Chess(Chess.types.PAWN, 2, 7, i));
+  }
+
   for (var i=0;i<this.chessPieces.length;i++) {
     let piece = this.chessPieces[i];
     for (var j=0;j<piece.quadrics.length;j++) {
