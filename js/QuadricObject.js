@@ -1,8 +1,9 @@
 "use strict"
-let GameObject = function(mesh) {
+let QuadricObject = function(mesh) {
+  this.quadricSet = [];
+  this.materialSet = [];
+
   this.mesh = mesh;
-  this.radius = .2;
-  this.toDestroy = false;
   this.isGround = false;
 
   this.orientation = 0;
@@ -22,7 +23,7 @@ let GameObject = function(mesh) {
   this.modelMatrix = new Mat4();
 };
 
-GameObject.prototype.updateModelMatrix = function(){
+QuadricObject.prototype.updateModelMatrix = function(){
   // TODO: set the model matrix according to the position, orientation, and scale
   this.sideDirection.setVectorProduct((new Vec3(0, 1, 0)), this.faceDirection).normalize();
   if (this.parent === null) {
@@ -38,56 +39,23 @@ GameObject.prototype.updateModelMatrix = function(){
   }
 };
 
-GameObject.prototype.detectCollision = function(other) {
-  var diffX = this.position.x - other.position.x;
-  var diffY = this.position.y - other.position.y;
-  var diffZ = this.position.z - other.position.z;
-  var distance = Math.sqrt(diffX*diffX + diffY*diffY + diffZ*diffZ);
-  // if (distance <=  (this.radius + other.radius))
-  if (distance <= (other.radius + this.radius)) {
-    other.toDestroy = true;
-    return true;
-  } else {
-    return false;
-  }
-}
-
-GameObject.prototype.draw = function(camera, lightSource){
+QuadricObject.prototype.draw = function(camera, lightSource){
   this.updateModelMatrix();
   //camera.updateViewProjMatrix();
   //this.mesh.setUniform("modelViewProjMatrix", (new Mat4()).mul(this.modelMatrix).mul(camera.viewProjMatrix));
   Material.modelViewProjMatrix.set(this.modelMatrix).mul(camera.viewProjMatrix);
   Material.modelMatrix.set(this.modelMatrix);
   Material.modelMatrixInverse.set(this.modelMatrix).invert();
-  // for (var i=0;i<lightSource.length;i++) {
-  //   this.lightPos.push(lightSource[i].lightPos);
-  //   this.lightPowerDensity.push(lightSource[i].lightPowerDensity);
-  // }
-
   Material.lightPos.set(lightSource.lightPos);
   Material.lightPowerDensity.set(lightSource.lightPowerDensity);
   Material.mainDir.set(lightSource.mainDir);
   Material.cameraPos.set(camera.position);
-  this.mesh.draw();
-};
 
-GameObject.prototype.drawShadow = function(camera, lightSource, shadowMaterial) {
-  if (this.isGround === false) {
-    this.updateModelMatrix();
-    let height;
-    if (this.parent !== null) {
-      Material.objectPosition.set(this.parent.position);
-      height = (this.parent.position.y - .1)*.1;
-    } else {
-      Material.objectPosition.set(this.position);
-      height = (this.position.y - .1)*.1;
-    }
-    //this.modelMatrix.scale(new Vec3(1, 0, 1));
-    let light = lightSource.lightPos.at(0);
-    Material.modelMatrix.scale(new Vec3(1, 0, 1)).
-                         translate(new Vec3(0, -.175, 0)).translate(new Vec3(height, 0, height));
-    Material.modelMatrixInverse.set(Material.modelMatrix).invert();
-    Material.modelViewProjMatrix.set(Material.modelMatrix).mul(camera.viewProjMatrix);
-    this.mesh.drawShadow(shadowMaterial);
-  }
+  for (var i=0;i<this.quadricSet.length;i++){
+    Material.quadrics.at(i*2).set(this.quadricSet[i].surfaceCoeffMatrix);
+    Material.quadrics.at(i*2+1).set(this.quadricSet[i].clipperCoeffMatrix);
+    Material.brdfs.at(i).set(this.materialSet[i]);
+  };
+
+  this.mesh.draw();
 };

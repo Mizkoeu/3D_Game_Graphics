@@ -58,7 +58,7 @@ PerspectiveCamera.prototype.updateProjMatrix = function(){
 PerspectiveCamera.prototype.track = function(object) {
   let front = object.faceDirection;
   let focus = object.position.plus(new Vec3(0, .5, 0));
-  this.position = focus.plus(new Vec3(0, .2, 0)).plus(front.times(-50));
+  this.position = focus.plus(new Vec3(0, .2, 0)).plus(front.times(-40));
   this.ahead = (focus.minus(this.position)).normalize();
   this.right.setVectorProduct(this.ahead, new Vec3(0, 1, 0)).normalize();
   this.up.setVectorProduct(this.right, this.ahead).normalize();
