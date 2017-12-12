@@ -41,8 +41,8 @@ let Scene = function(gl) {
 
   //materials
   this.mirrorMaterial = new Material(gl, this.mirrorProgram);
-  this.mirrorTexture = new Texture2D(gl, "./space.png");
-  this.skyTexture = new Texture2D(gl, "./space.png");
+  this.mirrorTexture = new Texture2D(gl, "./texture/space.png");
+  this.skyTexture = new Texture2D(gl, "./texture/space.png");
   this.mirrorMaterial.probeTexture.set(this.mirrorTexture.glTexture);
   this.shadowMaterial = new Material(gl, this.shadowProgram);
   this.shinyMaterial = new Material(gl, this.shinyProgram);
@@ -53,9 +53,9 @@ let Scene = function(gl) {
   this.landMaterial2 = new Material(gl, this.shinyProgram);
   this.skyMaterial = new Material(gl, this.skyProgram);
 
-  this.redMetalTexture = new Texture2D(gl, "./metalRed.png");
-  this.goldTexture = new Texture2D(gl, "./gold.png");
-  this.legoFaceTexture = new Texture2D(gl, "./lego.png");
+  this.redMetalTexture = new Texture2D(gl, "./texture/metalRed.png");
+  this.goldTexture = new Texture2D(gl, "./texture/gold.png");
+  this.legoFaceTexture = new Texture2D(gl, "./texture/lego.png");
   this.treeTexture = new Texture2D(gl, "./json/tree.png");
   this.legoRed = new Material(gl, this.shinyProgram);
   this.legoGold = new Material(gl, this.shinyProgram);
@@ -67,8 +67,8 @@ let Scene = function(gl) {
   //texture binding
   this.texture = new Texture2D(gl, "./Slowpoke/YadonDh.png");
   this.texture2 = new Texture2D(gl, "./Slowpoke/YadonEyeDh.png");
-  this.landTexture = new Texture2D(gl, "./ground.jpg");
-  this.landTexture2 = new Texture2D(gl, "./badGround.jpg");
+  this.landTexture = new Texture2D(gl, "./texture/ground.jpg");
+  this.landTexture2 = new Texture2D(gl, "./texture/badGround.jpg");
   this.bodyMaterial.colorTexture.set(this.texture.glTexture);
   this.eyeMaterial.colorTexture.set(this.texture2.glTexture);
   this.landMaterial.colorTexture.set(this.landTexture.glTexture);
@@ -91,12 +91,6 @@ let Scene = function(gl) {
   this.lightSource.mainDir.at(0).set(-1, -1, -1, 0);
   //this.lightSource.mainDir.at(1).set(0, -1, 5, 0);
   this.spotLight;
-
-  // console.log(this.lightSource.lightPos.at(0));
-  // console.log(this.lightSource.lightPowerDensity.at(0));
-  //this.lightSource.push(new Vec4Array[(new Vec4(1, 1.5, 1, 1))], new Vec4Array[(new Vec4(0, -1, -1, 0))]);
-
-  //this.bodyMaterial.lightPos.set(this.lightSource);
 
   //Create Skydome
   this.quadricObjects = [];
@@ -123,14 +117,12 @@ let Scene = function(gl) {
 
   //Create object array
   // this.mesh = new Mesh(this.textureGeometry, this.material);
-
   this.rocks = [];
-  this.rock = new GameObject(new MultiMesh(gl, "./rock.json", [this.legoRed, this.legoGold]));
+  this.rock = new GameObject(new MultiMesh(gl, "./json/rock.json", [this.legoRed, this.legoGold]));
   this.rock.position = new Vec3(0, 8, 0);
   this.rock.acceleration = new Vec2(0, -.02);
   this.rock.scale = .12;
   this.rocks.push(this.rock);
-  // this.gameObjects.push(this.rock);
 
   this.flyhouseMaterial = [];
   for(var i=0;i<8;i++) {
@@ -138,13 +130,12 @@ let Scene = function(gl) {
   }
   this.flyhouses = [];
   for (var i=0;i<30;i++) {
-    var flyhouse = new GameObject(new MultiMesh(gl, "./flyhouse.json", this.flyhouseMaterial));
+    var flyhouse = new GameObject(new MultiMesh(gl, "./json/flyhouse.json", this.flyhouseMaterial));
     flyhouse.radius = 1.6;
     flyhouse.position = new Vec3(Math.random() * 60 - 30, 2, Math.random() * 60 - 30);
     flyhouse.orientation = Math.random() * Math.PI * 2;
     flyhouse.scale = .02 + .005 * Math.random();
     this.flyhouses.push(flyhouse);
-    // this.gameObjects.push(flyhouse);
   }
 
   this.legoSurvivors = [];
@@ -154,7 +145,7 @@ let Scene = function(gl) {
     this.legoMaterial.push(this.legoGold);
   }
   for (var i=0;i<this.totalSurvivor;i++) {
-    var lego = new GameObject(new MultiMesh(gl, "./lego.json", this.legoMaterial));
+    var lego = new GameObject(new MultiMesh(gl, "./json/lego.json", this.legoMaterial));
     lego.radius = .3;
     lego.position = new Vec3(Math.random()*40-20, -.2, Math.random()*40-20);
     lego.orientation = Math.random() * Math.PI * 2;
@@ -165,7 +156,7 @@ let Scene = function(gl) {
   //mountains
   this.mountainMaterial = [];
   for (var i=0;i<7;i++) {this.mountainMaterial.push(this.legoGold);}
-  this.castle = new GameObject(new MultiMesh(gl, "./castle.json", this.mountainMaterial));
+  this.castle = new GameObject(new MultiMesh(gl, "./json/castle.json", this.mountainMaterial));
   this.castle.position = new Vec3(0, 3.05, 30);
   this.castle.orientation = Math.PI;
   this.castle.scale = .05;
@@ -237,13 +228,6 @@ let Scene = function(gl) {
   //   this.gameObjects.push(balloon);
   // }
 
-  //Thunderbolt
-  // this.createObject(gl, "heli", "./json/heli/heliait.png", "./json/heli/heli1.json");
-  // //this.createObject(gl, "heliRotor", "./json/heli/heli.png", "./json/heli/mainrotor.json");
-  // this.heli.orientation = -Math.PI/2.0;
-  // this.heli.position = new Vec3(0, 1, 0);
-  //this.heliRotor.parent = this.heli;
-
   //Trees
   this.trees = [];
   for (var i=0;i<100;i++) {
@@ -288,7 +272,7 @@ Scene.prototype.update = function(gl, keysPressed) {
 
   if (this.timer === 60) {
     for (var i=0;i<25;i++) {
-      var rock = new GameObject(new MultiMesh(gl, "./rock.json", [this.legoRed, this.legoGold]));
+      var rock = new GameObject(new MultiMesh(gl, "./json/rock.json", [this.legoRed, this.legoGold]));
       rock.radius = .8;
       rock.position = new Vec3(Math.random()*40+curPosX, Math.random()*6+13, Math.random()*40+curPosZ);
       rock.faceDirection = (this.car.position.minus(rock.position)).normalize();
@@ -475,16 +459,23 @@ Scene.prototype.update = function(gl, keysPressed) {
     }
     var rotateMat = (new Mat4()).rotate(-.03, new Vec3(0, 1, 0));
     this.car.faceDirection.set((new Vec4(front, 0)).mul(rotateMat));
+  } else if (keysPressed.Z === true) {
+    let left = (new Vec3()).setVectorProduct(this.car.faceDirection, new Vec3(0, -1, 0));
+    dx.add(left.times(1.2));
+    this.car.tilt -= .3;
+  } else if (keysPressed.X === true) {
+    let right = (new Vec3()).setVectorProduct(this.car.faceDirection, new Vec3(0, 1, 0));
+    dx.add(right.times(1.2));
+    this.car.tilt += .3;
   } else {
-    if (this.car.tilt <= -.01) {
-      this.car.tilt += .01;
-    } else if (this.car.tilt >= .01) {
-      this.car.tilt -= .01;
-    } else {
-      this.car.tilt = 0.0;
-    }
+    if (this.car.tilt <= -.3) {this.car.tilt = 0;}
+    else if (this.car.tilt <= -.01) {this.car.tilt += .01;}
+    else if (this.car.tilt >= .3) {this.car.tilt = 0;}
+    else if (this.car.tilt >= .01) {this.car.tilt -= .01;}
+    else {this.car.tilt = 0.0;}
   }
-  dx = front.times(this.car.speed.x);
+
+  dx.add(front.times(this.car.speed.x));
   this.car.position.add(dx).add(elevation);
   this.camera.position.add(dx).add(elevation);
 

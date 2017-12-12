@@ -85,7 +85,7 @@ GameObject.prototype.drawShadow = function(camera, lightSource, shadowMaterial) 
     //this.modelMatrix.scale(new Vec3(1, 0, 1));
     let light = lightSource.lightPos.at(0);
     Material.modelMatrix.scale(new Vec3(1, 0, 1)).
-                         translate(new Vec3(0, -.175, 0)).translate(new Vec3(height, 0, height));
+                         translate(new Vec3(0, -.17, 0)).translate(new Vec3(height, 0, height));
     Material.modelMatrixInverse.set(Material.modelMatrix).invert();
     Material.modelViewProjMatrix.set(Material.modelMatrix).mul(camera.viewProjMatrix);
     this.mesh.drawShadow(shadowMaterial);
